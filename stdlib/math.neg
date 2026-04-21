@@ -1,0 +1,80 @@
+# stdlib/math.neg — Neglish Standard Math Module
+# Import with: import math as m
+
+export PI
+export E
+export TAU
+export INF
+
+set PI  to 3.14159265358979
+set E   to 2.71828182845905
+set TAU to 6.28318530717959
+set INF to 999999999999
+
+define function square with n
+    return n * n
+end
+
+define function cube with n
+    return n * n * n
+end
+
+define function hypotenuse with a, b
+    return sqrt of a * a + b * b
+end
+
+define function percent with part, total
+    if total is equal to 0 then
+        return 0
+    end
+    return part / total * 100
+end
+
+define function map_range with val, in_min, in_max, out_min, out_max
+    return out_min + (val - in_min) * (out_max - out_min) / (in_max - in_min)
+end
+
+define function is_between with val, lo, hi
+    if val is greater than lo - 1 and val is less than hi + 1 then
+        return true
+    end
+    return false
+end
+
+define function digits_of with n
+    set output to []
+    set s to string of abs of n
+    for each ch in s
+        if ch is not equal to "." then
+            add number of ch to output
+        end
+    end
+    return output
+end
+
+define function digit_sum with n
+    set digits to call digits_of with n
+    return sum of digits
+end
+
+define function collatz with n
+    set steps to 0
+    while n is not equal to 1
+        if n is equal to n / 2 * 2 then
+            set n to n / 2
+        else
+            set n to n * 3 + 1
+        end
+        increase steps by 1
+    end
+    return steps
+end
+
+export square
+export cube
+export hypotenuse
+export percent
+export map_range
+export is_between
+export digit_sum
+export collatz

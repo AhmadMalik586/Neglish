@@ -1,0 +1,126 @@
+# stdlib/collections.neg — Neglish Collections Module
+
+define function range_list with start, end_val
+    create list output with
+    for i from start to end_val
+        add i to output
+    end
+    return output
+end
+
+define function repeat_list with item, n
+    create list output with
+    repeat n times
+        add item to output
+    end
+    return output
+end
+
+define function rotate_left with lst, n
+    set len to length of lst
+    if len is equal to 0 then
+        return lst
+    end
+    create list output with
+    create list combined with
+    for each x in lst
+        add x to combined
+    end
+    for each x in lst
+        add x to combined
+    end
+    set start_idx to n + 1
+    set end_idx to n + len
+    for i from start_idx to end_idx
+        add item i of combined to output
+    end
+    return output
+end
+
+define function zip_lists with list_a, list_b
+    create list output with
+    create list zipped with
+    set len_a to length of list_a
+    set len_b to length of list_b
+    set min_len to min of len_a and len_b
+    set idx to 1
+    while idx is less than min_len + 1
+        set va to item idx of list_a
+        set vb to item idx of list_b
+        create list pair with va, vb
+        add pair to output
+        increase idx by 1
+    end
+    return output
+end
+
+define function count_occurrences with lst, item
+    set n to 0
+    for each x in lst
+        if x is equal to item then
+            increase n by 1
+        end
+    end
+    return n
+end
+
+define function frequency_map with lst
+    create map freq with
+    for each item in lst
+        set current to key item of freq
+        if current is equal to null then
+            set key item of freq to 1
+        else
+            set key item of freq to current + 1
+        end
+    end
+    return freq
+end
+
+define function all_match with lst, fn_name
+    for each item in lst
+        set output to call fn_name with item
+        if not result then
+            return false
+        end
+    end
+    return true
+end
+
+define function any_match with lst, fn_name
+    for each item in lst
+        set output to call fn_name with item
+        if result then
+            return true
+        end
+    end
+    return false
+end
+
+define function group_by_first with lst
+    create map groups with
+    for each item in lst
+        set k to item
+        if is_list of item then
+            set k to first of item
+        end
+        set existing to key k of groups
+        if existing is equal to null then
+            create list new_group with item
+            set key k of groups to new_group
+        else
+            add item to existing
+        end
+    end
+    return groups
+end
+
+export range_list
+export repeat_list
+export rotate_left
+export zip_lists
+export count_occurrences
+export frequency_map
+export all_match
+export any_match
+export group_by_first

@@ -1,0 +1,93 @@
+# stdlib/strings.neg — Neglish Standard String Module
+
+define function words_in with text
+    return split text by " "
+end
+
+define function word_count with text
+    set ws to call words_in with text
+    return length of ws
+end
+
+define function capitalize_words with text
+    return titlecase of text
+end
+
+define function is_palindrome with text
+    set clean to lowercase of trim of text
+    set rev to reverse of clean
+    if clean is equal to rev then
+        return true
+    end
+    return false
+end
+
+define function count_vowels with text
+    set lower to lowercase of text
+    set vowels to 0
+    for each ch in lower
+        if ch is equal to "a" or ch is equal to "e" or ch is equal to "i" or ch is equal to "o" or ch is equal to "u" then
+            increase vowels by 1
+        end
+    end
+    return vowels
+end
+
+define function count_consonants with text
+    set lower to lowercase of text
+    set cons to 0
+    for each ch in lower
+        if ch is not equal to " " and ch is not equal to "a" and ch is not equal to "e" and ch is not equal to "i" and ch is not equal to "o" and ch is not equal to "u" then
+            increase cons by 1
+        end
+    end
+    return cons
+end
+
+define function repeat_text with text, n
+    set output to ""
+    repeat n times
+        set output to result + text
+    end
+    return output
+end
+
+define function truncate with text, max_len, suffix
+    if length of text is less than max_len + 1 then
+        return text
+    end
+    return substring of text from 1 to max_len + length of suffix
+end
+
+define function mask with text, char
+    set output to ""
+    repeat length of text times
+        set output to result + char
+    end
+    return output
+end
+
+define function slug_from with text
+    set lower to lowercase of trim of text
+    set output to replace in lower find " " with "-"
+    return output
+end
+
+define function between_quotes with text
+    set len to length of text
+    if len is less than 3 then
+        return text
+    end
+    return substring of text from 2 to len - 1
+end
+
+export words_in
+export word_count
+export capitalize_words
+export is_palindrome
+export count_vowels
+export count_consonants
+export repeat_text
+export truncate
+export mask
+export slug_from

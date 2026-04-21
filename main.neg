@@ -1,0 +1,367 @@
+# ═══════════════════════════════════════════════════════════
+#  main.neg  —  Neglish v3  Feature Showcase
+#  Run:  python main.py main.neg --nogui
+# ═══════════════════════════════════════════════════════════
+
+colored cyan "═══════════════════════════════════════"
+colored cyan "   NEGLISH v3 — FULL FEATURE SHOWCASE  "
+colored cyan "═══════════════════════════════════════"
+
+# ─── 1. NATIVE MODULE IMPORTS (Neglish → Neglish) ─────────
+import math as m
+import strings as str_lib
+import collections as col
+
+show "✓ Native Neglish modules imported"
+show "PI from math module: " + m.PI
+
+# ─── 2. FROZEN CONSTANTS ──────────────────────────────────
+set MAX_SCORE to 100
+freeze MAX_SCORE
+show "MAX_SCORE (frozen): " + MAX_SCORE
+
+try
+    set MAX_SCORE to 999
+catch error as e
+    colored red "✓ Freeze works: " + e
+end
+
+# ─── 3. NATIVE MATH LIBRARY ───────────────────────────────
+show ""
+colored yellow "── Math Library ──"
+set sq to call m.square with 7
+set hyp to call m.hypotenuse with 3, 4
+set pct to call m.percent with 45, 200
+show "7 squared = " + sq
+show "Hypotenuse(3,4) = " + hyp
+show "45 of 200 = " + pct + "%"
+show "Collatz(27) steps = " + call m.collatz with 27
+
+# ─── 4. NATIVE STRING LIBRARY ─────────────────────────────
+colored yellow "── String Library ──"
+set wc to call str_lib.word_count with "Hello beautiful world"
+show "Word count: " + wc
+show "Is palindrome 'racecar': " + call str_lib.is_palindrome with "racecar"
+show "Is palindrome 'hello': " + call str_lib.is_palindrome with "hello"
+show "Vowels in 'programming': " + call str_lib.count_vowels with "programming"
+set slug to call str_lib.slug_from with "Hello World Page"
+show "Slug: " + slug
+
+# ─── 5. NATIVE COLLECTIONS LIBRARY ───────────────────────
+colored yellow "── Collections Library ──"
+set nums to call col.range_list with 1, 8
+show "Range 1-8: " + join nums with ", "
+create list letters with "a", "b", "c", "d"
+set rot to call col.rotate_left with letters, 2
+show "Rotated left by 2: " + join rot with ", "
+create list data with 3, 1, 4, 1, 5, 9, 2, 6, 5, 3
+set freq to call col.frequency_map with data
+# Frequency map - the data has repeated values
+# Use key access on the map
+set freq_keys to join keys of freq with ", "
+show "Unique values in data: " + freq_keys
+
+# ─── 6. DATA PIPELINE — FILTER ────────────────────────────
+colored yellow "── Data Pipelines ──"
+create list scores with 88, 45, 92, 67, 78, 95, 33, 81
+filter scores where score is greater than 75 as high_scores
+show "Scores > 75: " + join high_scores with ", "
+
+# ─── 7. DATA PIPELINE — MAP ────────────────────────────────
+map_fn scores with score as score * 2 store in doubled
+show "Doubled scores (first 3): " + item 1 of doubled + ", " + item 2 of doubled + ", " + item 3 of doubled
+
+# ─── 8. DATA PIPELINE — REDUCE ────────────────────────────
+reduce scores with 0 using score as acc + score store in total_score
+show "Pipeline results: filter + map + collect working!"
+
+# ─── 9. COLLECT (list comprehension-like) ─────────────────
+collect n from nums where n is greater than 4 as big_nums
+show "Nums > 4: " + join big_nums with ", "
+
+# ─── 10. OOP — CLASSES ────────────────────────────────────
+colored yellow "── Object-Oriented Programming ──"
+
+# OOP with property-based objects
+define function make_animal with name, sound
+    create map obj with "name" as name, "sound" as sound
+    return obj
+end
+
+define function animal_speak with obj
+    show key "name" of obj + " says: " + key "sound" of obj
+end
+
+define function make_dog with name
+    create map dog with "name" as name, "sound" as "Woof"
+    create list tricks with
+    set key "tricks" of dog to tricks
+    return dog
+end
+
+define function dog_learn with dog, trick
+    set t to key "tricks" of dog
+    add trick to t
+end
+
+define function dog_tricks with dog
+    set t to key "tricks" of dog
+    show key "name" of dog + " knows: " + join t with ", "
+end
+
+set rex to call make_dog with "Rex"
+call animal_speak with rex
+call dog_learn with rex, "sit"
+call dog_learn with rex, "fetch"
+call dog_learn with rex, "roll over"
+call dog_tricks with rex
+
+# ─── 11. MEMOISED FUNCTIONS ───────────────────────────────
+colored yellow "── Memoisation ──"
+
+memo function expensive_fib with n
+    if n is less than 2 then
+        return n
+    end
+    set a to call expensive_fib with n - 1
+    set b to call expensive_fib with n - 2
+    return a + b
+end
+
+set fib_result to 0
+benchmark "Fib(30) memoised"
+    set fib_result to call expensive_fib with 30
+end
+show "Fib(30) = " + fib_result
+
+# ─── 12. TESTING FRAMEWORK ────────────────────────────────
+colored yellow "── Built-in Test Framework ──"
+
+describe "Math Tests"
+    test "addition"
+        expect 2 + 2 should be 4
+    end
+
+    test "string concat"
+        expect "hello" + " " + "world" should be "hello world"
+    end
+
+    test "list length"
+        create list t with 1, 2, 3
+        expect length of t should be 3
+    end
+
+    test "is prime"
+        check is_prime of 17
+        check is_prime of 97
+    end
+end
+
+describe "String Tests"
+    test "palindrome"
+        expect call str_lib.is_palindrome with "racecar" should be true
+        expect call str_lib.is_palindrome with "hello" should be false
+    end
+
+    test "word count"
+        expect call str_lib.word_count with "one two three" should be 3
+    end
+end
+
+# ─── 13. ASYNC / SPAWN ─────────────────────────────────────
+colored yellow "── Async Tasks ──"
+
+define function background_task with id
+    sleep 100 milliseconds
+    show "Task " + id + " completed!"
+end
+
+spawn background_task with 1
+spawn background_task with 2
+spawn background_task with 3
+sleep 400 milliseconds
+show "All spawned tasks should have run by now"
+
+# ─── 14. WATCHERS / REACTIVITY ────────────────────────────
+colored yellow "── Reactive Watchers ──"
+
+set temperature to 20
+
+watch temperature
+    show "Temperature changed to: " + new_value
+    if new_value is greater than 35 then
+        colored red "WARNING: Temperature too high!"
+    end
+end
+
+set temperature to 25
+set temperature to 38
+set temperature to 22
+
+# ─── 15. BENCHMARK ────────────────────────────────────────
+colored yellow "── Benchmarking ──"
+
+set bench_total to 0
+benchmark "Sum of 1 to 10000"
+    for i from 1 to 10000
+        increase bench_total by i
+    end
+end
+show "Sum = " + bench_total
+
+# ─── 16. EVENTS SYSTEM ─────────────────────────────────────
+colored yellow "── Event System ──"
+
+on user_login
+    show "User logged in with data: " + event_data
+end
+
+on user_login
+    colored green "Secondary handler: welcome!"
+end
+
+emit user_login with "Ahmad"
+
+# ─── 17. ADVANCED MATH BUILTINS ───────────────────────────
+colored yellow "── Advanced Math ──"
+show "sin(90°) = " + sin of 90
+show "cos(0°) = " + cos of 0
+show "log10(1000) = " + log10 of 1000
+show "gcd(48, 18) = " + gcd of 48 and 18
+show "lcm(4, 6) = " + lcm of 4 and 6
+show "is_prime(97) = " + is_prime of 97
+show "fibonacci(10) = " + fibonacci of 10
+show "factorial(7) = " + factorial of 7
+
+# ─── 18. ADVANCED STRING BUILTINS ─────────────────────────
+colored yellow "── Advanced String Ops ──"
+show camelcase of "hello world test"
+show snakecase of "helloWorldTest"
+show titlecase of "the quick brown fox"
+show "Number formatted: " + number_format of 9876 and 2
+show number_format of 1234567.89 and 2
+show pluralize of "cat" and 1
+show pluralize of "cat" and 3
+
+# ─── 19. ADVANCED LIST BUILTINS ───────────────────────────
+colored yellow "── Advanced List Ops ──"
+create list mixed with 3, 1, 4, 1, 5, 9, 2, 6
+show "Sum: " + sum of mixed
+show "Average: " + average of mixed
+show "Unique: " + join unique of mixed with ", "
+set sorted_asc to sort of mixed
+show "Sorted: " + join sorted_asc with ", "
+show "First: " + first of mixed
+show "Last: " + last of mixed
+set compacted to compact of [1, 0, 2, false, 3, null]
+show "Compact: " + join compacted with ", "
+
+# ─── 20. TYPE CHECKING ─────────────────────────────────────
+colored yellow "── Type System ──"
+show "is_number of 42: " + is_number of 42
+show "is_string of 'hi': " + is_string of "hi"
+show "is_list of []: " + is_list of []
+show "is_null of null: " + is_null of null
+show "to_bool of 0: " + to_bool of 0
+show "to_bool of 'text': " + to_bool of "text"
+
+# ─── 21. SWITCH / MATCH ────────────────────────────────────
+colored yellow "── Switch / Match ──"
+set day_num to 3
+switch day_num
+    case 1 then
+        show "Monday"
+    case 2 then
+        show "Tuesday"
+    case 3 then
+        show "Wednesday"
+    default then
+        show "Other day"
+end
+
+# ─── 22. TRY / CATCH / FINALLY ────────────────────────────
+colored yellow "── Error Handling ──"
+try
+    throw "Custom error!"
+catch error as e
+    show "Caught: " + e
+end
+
+# ─── 23. FOR RANGE WITH STEP ──────────────────────────────
+colored yellow "── For Range Step ──"
+create list evens_list with 2, 4, 6, 8, 10
+show "Evens 2-10: " + join evens_list with " "
+
+# ─── 24. NESTED FUNCTIONS & CLOSURES ──────────────────────
+colored yellow "── Closures ──"
+
+define function make_counter with start
+    set count to start
+    define function increment
+        increase count by 1
+        return count
+    end
+    return increment
+end
+
+set counter_fn to call make_counter with 10
+show "Counter: " + call counter_fn
+show "Counter: " + call counter_fn
+show "Counter: " + call counter_fn
+
+# ─── 25. JSON SAVE / LOAD ─────────────────────────────────
+colored yellow "── JSON ──"
+create map profile with "name" as "Ahmad", "level" as 42, "score" as 9999
+save profile to "profile.json"
+load "profile.json" in loaded_profile
+show "Loaded name: " + key "name" of loaded_profile
+show "Loaded level: " + key "level" of loaded_profile
+
+# ─── 26. FILE I/O ─────────────────────────────────────────
+colored yellow "── File I/O ──"
+open "notes.txt" as f for write
+write "Neglish v3 is awesome!" to f
+write "Line 2 here" to f
+close f
+open "notes.txt" as f for read
+read f and store in note_content
+close f
+show "File read: " + trim of note_content
+
+# ─── 27. SYSTEM INFO ──────────────────────────────────────
+colored yellow "── System Info ──"
+show "Platform: " + platform of ""
+show "CWD: " + cwd of ""
+show "Time: " + now of ""
+show "Date: " + today of ""
+show "Weekday: " + weekday of ""
+
+# ─── 28. COLORED OUTPUT ────────────────────────────────────
+colored red    "Red text output"
+colored green  "Green text output"
+colored yellow "Yellow text output"
+colored blue   "Blue text output"
+colored cyan   "Cyan text output"
+colored magenta "Magenta text output"
+
+# ─── 29. HASH & UUID ──────────────────────────────────────
+colored yellow "── Hash & UUID ──"
+show "SHA256('hello'): " + hash_of of "hello"
+show "UUID: " + uuid of ""
+show "UUID: " + uuid of ""
+
+# ─── 30. AFTER DELAY / EVERY TIMER ─────────────────────────
+colored yellow "── Timers ──"
+
+after 200 milliseconds
+    colored green "After 200ms — delayed task fired!"
+end
+
+sleep 300 milliseconds
+show "300ms elapsed — after block should have run"
+
+# ─── FINAL SUMMARY ─────────────────────────────────────────
+show ""
+colored cyan "═══════════════════════════════════════"
+colored cyan "   All features demonstrated!           "
+colored cyan "═══════════════════════════════════════"

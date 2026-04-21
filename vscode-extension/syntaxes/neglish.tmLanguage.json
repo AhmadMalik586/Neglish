@@ -1,0 +1,163 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Neglish",
+  "scopeName": "source.neglish",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#multiline-strings" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#constants" },
+    { "include": "#control-flow" },
+    { "include": "#function-def" },
+    { "include": "#function-call" },
+    { "include": "#io-keywords" },
+    { "include": "#variable-keywords" },
+    { "include": "#loop-keywords" },
+    { "include": "#gui-keywords" },
+    { "include": "#list-keywords" },
+    { "include": "#math-keywords" },
+    { "include": "#string-keywords" },
+    { "include": "#file-keywords" },
+    { "include": "#error-keywords" },
+    { "include": "#type-keywords" },
+    { "include": "#color-keywords" },
+    { "include": "#operators" },
+    { "include": "#identifiers" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.hash.neglish",
+          "match": "#.*$"
+        },
+        {
+          "name": "comment.line.double-slash.neglish",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.neglish",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "multiline-strings": {
+      "name": "string.quoted.triple.neglish",
+      "begin": "\"\"\"",
+      "end": "\"\"\"",
+      "patterns": [
+        { "name": "constant.character.escape.neglish", "match": "\\\\." }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.neglish",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            { "name": "constant.character.escape.neglish", "match": "\\\\." }
+          ]
+        },
+        {
+          "name": "string.quoted.single.neglish",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            { "name": "constant.character.escape.neglish", "match": "\\\\." }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "name": "constant.numeric.neglish",
+      "match": "\\b(-?\\d+(\\.\\d+)?|0x[0-9a-fA-F]+)\\b"
+    },
+    "constants": {
+      "name": "constant.language.neglish",
+      "match": "\\b(true|false|null|none|PI|E|TAU|INF|NAN|NEWLINE|TAB|VERSION|ARGS)\\b"
+    },
+    "control-flow": {
+      "name": "keyword.control.neglish",
+      "match": "\\b(if|then|else|elseif|elif|otherwise|also|end|while|repeat|times|for|each|from|to|step|loop|forever|until|do|break|continue|return|switch|match|case|default|try|catch|throw|raise)\\b"
+    },
+    "function-def": {
+      "patterns": [
+        {
+          "name": "keyword.other.function-def.neglish",
+          "match": "\\b(define|function|with)\\b"
+        },
+        {
+          "name": "entity.name.function.neglish",
+          "match": "(?<=define\\s+function\\s+)([a-zA-Z_][a-zA-Z0-9_]*)"
+        }
+      ]
+    },
+    "function-call": {
+      "patterns": [
+        {
+          "name": "keyword.other.call.neglish",
+          "match": "\\b(call)\\b"
+        },
+        {
+          "name": "entity.name.function.call.neglish",
+          "match": "(?<=call\\s+)([a-zA-Z_][a-zA-Z0-9_]*)"
+        }
+      ]
+    },
+    "io-keywords": {
+      "name": "support.function.io.neglish",
+      "match": "\\b(show|say|print|log|ask|store|in|and|input|colored|debug|inspect|format|assert)\\b"
+    },
+    "variable-keywords": {
+      "name": "keyword.operator.assignment.neglish",
+      "match": "\\b(set|to|let|const|increase|decrease|by|add|remove|global|local|delete|free)\\b"
+    },
+    "loop-keywords": {
+      "name": "keyword.control.loop.neglish",
+      "match": "\\b(repeat|times|while|for|each|in|from|to|step|loop|forever|as)\\b"
+    },
+    "gui-keywords": {
+      "name": "support.class.gui.neglish",
+      "match": "\\b(create|window|button|label|entry|textbox|checkbox|dropdown|canvas|frame|progress|menu|menubar|tab|width|height|color|background|foreground|font|size|bold|italic|x|y|row|column|show|hide|destroy|focus|title|icon|resize|alert|confirm|info|warning|messagebox|when|clicked|changed|submitted|on|emit|trigger|event|listen)\\b"
+    },
+    "list-keywords": {
+      "name": "support.function.list.neglish",
+      "match": "\\b(list|item|of|create|add|remove|insert|at|pop|sort|shuffle|slice|unique|flatten|first|last|sum|average|count|length|index|empty|reverse|join|split|zip|enumerate|range)\\b"
+    },
+    "math-keywords": {
+      "name": "support.function.math.neglish",
+      "match": "\\b(sqrt|abs|floor|ceil|round|power|random|between|max|min|pi|math|mod)\\b"
+    },
+    "string-keywords": {
+      "name": "support.function.string.neglish",
+      "match": "\\b(uppercase|lowercase|trim|replace|contains|starts|ends|with|find|substring|string|number|type|convert|format|regex|match|pattern)\\b"
+    },
+    "file-keywords": {
+      "name": "keyword.other.file.neglish",
+      "match": "\\b(open|file|read|write|append|close|exists|delete|lines|save|load|json|parse|stringify|dump|fetch|url|get|post|send|receive|response|request)\\b"
+    },
+    "error-keywords": {
+      "name": "keyword.other.error.neglish",
+      "match": "\\b(try|catch|error|throw|raise|assert)\\b"
+    },
+    "type-keywords": {
+      "name": "support.type.neglish",
+      "match": "\\b(is|not|equal|greater|less|than|and|or|both|either|neither|all|any|a|an|null|none)\\b"
+    },
+    "color-keywords": {
+      "name": "support.constant.color.neglish",
+      "match": "\\b(red|green|blue|yellow|cyan|magenta|white|black|colored)\\b"
+    },
+    "operators": {
+      "name": "keyword.operator.neglish",
+      "match": "[+\\-*/=<>!%^&|~@]|\\+=|-=|\\*=|/=|==|!=|<=|>=|\\*\\*|->"
+    },
+    "identifiers": {
+      "name": "variable.other.neglish",
+      "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+    }
+  }
+}

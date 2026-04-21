@@ -1,0 +1,70 @@
+# stdlib/io.neg — Neglish I/O Module
+
+define function read_text with path
+    set content to read_file of path
+    return content
+end
+
+define function write_text with path, content
+    write_file path content
+end
+
+define function read_lines with path
+    set content to read_file of path
+    return split_lines of content
+end
+
+define function write_lines with path, lines
+    set content to join lines with NL
+    write_file path content
+end
+
+define function read_json with path
+    set raw to read_file of path
+    return json_parse of raw
+end
+
+define function write_json with path, data
+    set raw to json_pretty of data
+    write_file path raw
+end
+
+define function read_csv with path
+    set content to read_file of path
+    set rows to split_lines of content
+    create list output with
+    for each row in rows
+        if length of trim of row is greater than 0 then
+            add split row by "," to result
+        end
+    end
+    return output
+end
+
+define function print_table with headers, rows
+    set header_line to join headers with " | "
+    show header_line
+    set sep to ""
+    repeat length of header_line times
+        set sep to sep + "-"
+    end
+    show sep
+    for each row in rows
+        show join row with " | "
+    end
+end
+
+define function prompt_for with label
+    ask "Enter value: " and store in _input_result
+    return _input_result
+end
+
+export read_text
+export write_text
+export read_lines
+export write_lines
+export read_json
+export write_json
+export read_csv
+export print_table
+export prompt_for

@@ -1,0 +1,68 @@
+{
+  "name": "neglish-language",
+  "displayName": "Neglish Language Support",
+  "description": "Syntax highlighting, snippets, and language support for the Neglish (.neg) programming language",
+  "version": "2.0.0",
+  "publisher": "neglish",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Themes"
+  ],
+  "icon": "icon.png",
+  "keywords": ["neglish", "neg", "english-like", "scripting"],
+  "contributes": {
+    "languages": [
+      {
+        "id": "neglish",
+        "aliases": ["Neglish", "neg"],
+        "extensions": [".neg"],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icon.png",
+          "dark": "./icon.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "neglish",
+        "scopeName": "source.neglish",
+        "path": "./syntaxes/neglish.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "neglish",
+        "path": "./snippets/neglish.json"
+      }
+    ],
+    "themes": [
+      {
+        "label": "Neglish Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/neglish-dark.json"
+      }
+    ],
+    "configurationDefaults": {
+      "[neglish]": {
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true,
+        "editor.wordWrap": "on",
+        "editor.suggestOnTriggerCharacters": true,
+        "editor.quickSuggestions": {
+          "other": true,
+          "comments": false,
+          "strings": false
+        }
+      }
+    }
+  },
+  "main": "./extension.js",
+  "scripts": {
+    "vsce-package": "vsce package"
+  }
+}

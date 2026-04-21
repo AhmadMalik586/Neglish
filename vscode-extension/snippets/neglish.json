@@ -1,0 +1,298 @@
+{
+  "Show": {
+    "prefix": "show",
+    "body": ["show ${1:\"Hello World\"}"],
+    "description": "Print to output"
+  },
+  "Set Variable": {
+    "prefix": "set",
+    "body": ["set ${1:name} to ${2:value}"],
+    "description": "Set a variable"
+  },
+  "If Statement": {
+    "prefix": "if",
+    "body": [
+      "if ${1:condition} then",
+      "    ${2:# body}",
+      "end"
+    ],
+    "description": "If statement"
+  },
+  "If Else": {
+    "prefix": "ife",
+    "body": [
+      "if ${1:condition} then",
+      "    ${2:# if body}",
+      "else",
+      "    ${3:# else body}",
+      "end"
+    ],
+    "description": "If-Else statement"
+  },
+  "If ElseIf Else": {
+    "prefix": "ifee",
+    "body": [
+      "if ${1:condition} then",
+      "    ${2:# if body}",
+      "elseif ${3:condition2} then",
+      "    ${4:# elseif body}",
+      "else",
+      "    ${5:# else body}",
+      "end"
+    ],
+    "description": "Full if-elseif-else"
+  },
+  "While Loop": {
+    "prefix": "while",
+    "body": [
+      "while ${1:condition}",
+      "    ${2:# body}",
+      "end"
+    ],
+    "description": "While loop"
+  },
+  "Repeat Loop": {
+    "prefix": "repeat",
+    "body": [
+      "repeat ${1:5} times",
+      "    ${2:# body}",
+      "end"
+    ],
+    "description": "Repeat N times"
+  },
+  "Repeat With Index": {
+    "prefix": "repeati",
+    "body": [
+      "repeat ${1:5} times as ${2:i}",
+      "    ${3:# body using i}",
+      "end"
+    ],
+    "description": "Repeat N times with index variable"
+  },
+  "For Range": {
+    "prefix": "forr",
+    "body": [
+      "for ${1:i} from ${2:1} to ${3:10}",
+      "    ${4:# body}",
+      "end"
+    ],
+    "description": "For range loop"
+  },
+  "For Range Step": {
+    "prefix": "fors",
+    "body": [
+      "for ${1:i} from ${2:1} to ${3:10} step ${4:2}",
+      "    ${5:# body}",
+      "end"
+    ],
+    "description": "For range loop with step"
+  },
+  "For Each": {
+    "prefix": "fore",
+    "body": [
+      "for each ${1:item} in ${2:list}",
+      "    ${3:# body}",
+      "end"
+    ],
+    "description": "For-each loop"
+  },
+  "Forever Loop": {
+    "prefix": "forever",
+    "body": [
+      "loop",
+      "    ${1:# body}",
+      "    if ${2:condition} then",
+      "        break",
+      "    end",
+      "end"
+    ],
+    "description": "Infinite loop with break"
+  },
+  "Define Function": {
+    "prefix": "def",
+    "body": [
+      "define function ${1:name} with ${2:param}",
+      "    ${3:# body}",
+      "end"
+    ],
+    "description": "Define a function"
+  },
+  "Define Function No Params": {
+    "prefix": "defn",
+    "body": [
+      "define function ${1:name}",
+      "    ${2:# body}",
+      "end"
+    ],
+    "description": "Define a function with no params"
+  },
+  "Call Function": {
+    "prefix": "call",
+    "body": ["call ${1:name} with ${2:args}"],
+    "description": "Call a function"
+  },
+  "Return": {
+    "prefix": "ret",
+    "body": ["return ${1:value}"],
+    "description": "Return statement"
+  },
+  "Ask Input": {
+    "prefix": "ask",
+    "body": ["ask \"${1:Enter value:}\" and store in ${2:name}"],
+    "description": "Ask for user input"
+  },
+  "Create List": {
+    "prefix": "list",
+    "body": ["create list ${1:name} with ${2:item1}, ${3:item2}"],
+    "description": "Create a list"
+  },
+  "For Each In List": {
+    "prefix": "flist",
+    "body": [
+      "for each ${1:item} in ${2:mylist}",
+      "    show ${1:item}",
+      "end"
+    ],
+    "description": "For each in list"
+  },
+  "Create Dict": {
+    "prefix": "dict",
+    "body": ["create map ${1:name} with \"${2:key}\" as ${3:value}"],
+    "description": "Create a dictionary"
+  },
+  "Try Catch": {
+    "prefix": "try",
+    "body": [
+      "try",
+      "    ${1:# risky code}",
+      "catch error as ${2:err}",
+      "    show \"Error: \" + ${2:err}",
+      "end"
+    ],
+    "description": "Try-catch error handling"
+  },
+  "Switch": {
+    "prefix": "switch",
+    "body": [
+      "switch ${1:variable}",
+      "    case ${2:value1} then",
+      "        ${3:# body}",
+      "    case ${4:value2} then",
+      "        ${5:# body}",
+      "    default then",
+      "        ${6:# body}",
+      "end"
+    ],
+    "description": "Switch/match statement"
+  },
+  "File Write": {
+    "prefix": "fwrite",
+    "body": [
+      "open \"${1:file.txt}\" as ${2:f} for write",
+      "write ${3:content} to ${2:f}",
+      "close ${2:f}"
+    ],
+    "description": "Open, write, close file"
+  },
+  "File Read": {
+    "prefix": "fread",
+    "body": [
+      "open \"${1:file.txt}\" as ${2:f} for read",
+      "read ${2:f} and store in ${3:content}",
+      "close ${2:f}",
+      "show ${3:content}"
+    ],
+    "description": "Open, read, close file"
+  },
+  "JSON Save": {
+    "prefix": "jsave",
+    "body": ["save ${1:variable} to \"${2:data.json}\""],
+    "description": "Save variable to JSON"
+  },
+  "JSON Load": {
+    "prefix": "jload",
+    "body": ["load \"${1:data.json}\" in ${2:variable}"],
+    "description": "Load JSON into variable"
+  },
+  "Colored Output": {
+    "prefix": "color",
+    "body": ["colored ${1|red,green,yellow,blue,cyan,magenta,white|} ${2:\"message\"}"],
+    "description": "Colored terminal output"
+  },
+  "Create Window": {
+    "prefix": "win",
+    "body": [
+      "create window \"${1:MyApp}\" with width ${2:800} height ${3:600}",
+      "show window"
+    ],
+    "description": "Create GUI window"
+  },
+  "Create Button": {
+    "prefix": "btn",
+    "body": ["create button \"${1:Click Me}\" in window \"${2:MyApp}\""],
+    "description": "Create GUI button"
+  },
+  "Button Event": {
+    "prefix": "click",
+    "body": [
+      "when button \"${1:Click Me}\" is clicked",
+      "    ${2:# handler}",
+      "end"
+    ],
+    "description": "Button click event"
+  },
+  "Event Emit": {
+    "prefix": "emit",
+    "body": ["emit ${1:event_name} with ${2:data}"],
+    "description": "Emit an event"
+  },
+  "Event On": {
+    "prefix": "on",
+    "body": [
+      "on ${1:event_name}",
+      "    ${2:# handler}",
+      "end"
+    ],
+    "description": "Listen for an event"
+  },
+  "Sleep": {
+    "prefix": "sleep",
+    "body": ["sleep ${1:1} ${2|seconds,milliseconds|}"],
+    "description": "Sleep/pause execution"
+  },
+  "Format String": {
+    "prefix": "fmt",
+    "body": ["set ${1:msg} to format \"${2:Hello {}!}\" with ${3:variable}"],
+    "description": "Format a string with values"
+  },
+  "Assert": {
+    "prefix": "assert",
+    "body": ["assert ${1:condition} otherwise \"${2:Error message}\""],
+    "description": "Assert condition or throw"
+  },
+  "Import": {
+    "prefix": "import",
+    "body": ["import ${1:module} as ${2:alias}"],
+    "description": "Import a module"
+  },
+  "Debug": {
+    "prefix": "debug",
+    "body": ["debug ${1:variable}"],
+    "description": "Debug print variable"
+  },
+  "Inspect": {
+    "prefix": "inspect",
+    "body": ["inspect ${1:variable}"],
+    "description": "Inspect variable type and value"
+  },
+  "Multiline String": {
+    "prefix": "ml",
+    "body": [
+      "set ${1:text} to \"\"\"",
+      "${2:Line 1}",
+      "${3:Line 2}",
+      "\"\"\""
+    ],
+    "description": "Multiline string"
+  }
+}

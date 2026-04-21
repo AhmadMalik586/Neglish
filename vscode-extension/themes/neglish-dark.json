@@ -1,0 +1,140 @@
+{
+  "name": "Neglish Dark",
+  "type": "dark",
+  "colors": {
+    "editor.background": "#0d1117",
+    "editor.foreground": "#c9d1d9",
+    "editorLineNumber.foreground": "#3d444d",
+    "editorLineNumber.activeForeground": "#6e7681",
+    "editor.selectionBackground": "#264f78",
+    "editor.inactiveSelectionBackground": "#1f3a5f",
+    "editor.lineHighlightBackground": "#161b22",
+    "editorCursor.foreground": "#58a6ff",
+    "editorIndentGuide.background": "#21262d",
+    "editorIndentGuide.activeBackground": "#30363d",
+    "editor.findMatchBackground": "#f2cc6033",
+    "editor.findMatchHighlightBackground": "#f2cc6022"
+  },
+  "tokenColors": [
+    {
+      "name": "Comments",
+      "scope": ["comment", "comment.line", "comment.block"],
+      "settings": { "foreground": "#6e7681", "fontStyle": "italic" }
+    },
+    {
+      "name": "Strings",
+      "scope": ["string", "string.quoted"],
+      "settings": { "foreground": "#a5d6ff" }
+    },
+    {
+      "name": "Multiline Strings",
+      "scope": ["string.quoted.triple"],
+      "settings": { "foreground": "#79c0ff", "fontStyle": "italic" }
+    },
+    {
+      "name": "Escape Characters",
+      "scope": ["constant.character.escape"],
+      "settings": { "foreground": "#ff9a4d" }
+    },
+    {
+      "name": "Numbers",
+      "scope": ["constant.numeric"],
+      "settings": { "foreground": "#f2cc60" }
+    },
+    {
+      "name": "Language Constants (true/false/null/PI)",
+      "scope": ["constant.language"],
+      "settings": { "foreground": "#ff9a4d", "fontStyle": "bold" }
+    },
+    {
+      "name": "Control Flow (if/while/for/end/break/return)",
+      "scope": ["keyword.control"],
+      "settings": { "foreground": "#ff7b72", "fontStyle": "bold" }
+    },
+    {
+      "name": "Function Definition (define/function/with)",
+      "scope": ["keyword.other.function-def"],
+      "settings": { "foreground": "#d2a8ff", "fontStyle": "bold" }
+    },
+    {
+      "name": "Function Names (defined)",
+      "scope": ["entity.name.function"],
+      "settings": { "foreground": "#79c0ff", "fontStyle": "bold" }
+    },
+    {
+      "name": "Call Keyword",
+      "scope": ["keyword.other.call"],
+      "settings": { "foreground": "#ff7b72" }
+    },
+    {
+      "name": "Called Function Names",
+      "scope": ["entity.name.function.call"],
+      "settings": { "foreground": "#79c0ff" }
+    },
+    {
+      "name": "I/O Keywords (show/say/ask/print/log/colored/debug)",
+      "scope": ["support.function.io"],
+      "settings": { "foreground": "#56d364", "fontStyle": "bold" }
+    },
+    {
+      "name": "Variable Keywords (set/increase/decrease/add/remove)",
+      "scope": ["keyword.operator.assignment"],
+      "settings": { "foreground": "#cba6f7" }
+    },
+    {
+      "name": "Loop Keywords",
+      "scope": ["keyword.control.loop"],
+      "settings": { "foreground": "#ff7b72" }
+    },
+    {
+      "name": "GUI Keywords",
+      "scope": ["support.class.gui"],
+      "settings": { "foreground": "#ffa657" }
+    },
+    {
+      "name": "List/Collection Keywords",
+      "scope": ["support.function.list"],
+      "settings": { "foreground": "#79c0ff" }
+    },
+    {
+      "name": "Math Keywords",
+      "scope": ["support.function.math"],
+      "settings": { "foreground": "#f2cc60" }
+    },
+    {
+      "name": "String Keywords",
+      "scope": ["support.function.string"],
+      "settings": { "foreground": "#a5d6ff" }
+    },
+    {
+      "name": "File Keywords",
+      "scope": ["keyword.other.file"],
+      "settings": { "foreground": "#ffa657" }
+    },
+    {
+      "name": "Error Handling",
+      "scope": ["keyword.other.error"],
+      "settings": { "foreground": "#ff7b72", "fontStyle": "bold" }
+    },
+    {
+      "name": "Type/Logic Keywords",
+      "scope": ["support.type"],
+      "settings": { "foreground": "#d2a8ff" }
+    },
+    {
+      "name": "Color Keywords",
+      "scope": ["support.constant.color"],
+      "settings": { "foreground": "#e3b341", "fontStyle": "bold" }
+    },
+    {
+      "name": "Operators",
+      "scope": ["keyword.operator"],
+      "settings": { "foreground": "#ff7b72" }
+    },
+    {
+      "name": "Variables & Identifiers",
+      "scope": ["variable.other"],
+      "settings": { "foreground": "#c9d1d9" }
+    }
+  ]
+}
