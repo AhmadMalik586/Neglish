@@ -1,5 +1,5 @@
-# lexer.py — Neglish v3 Tokeniser
-# Supports every keyword needed for the full language
+# lexer.py — Neglish v4.1 Tokeniser
+# Full OOP, lambdas, pattern matching, natural language flexibility
 
 TT_KEYWORD = 'KEYWORD'
 TT_STRING  = 'STRING'
@@ -10,109 +10,138 @@ TT_NEWLINE = 'NEWLINE'
 TT_EOF     = 'EOF'
 
 KEYWORDS = {
-    # core
-    'set','to','show','say','print','log','increase','decrease','by',
+    # core output (synonyms)
+    'show','say','print','log','display','output','echo',
+    # variables
+    'set','to','let','const','increase','decrease','by',
+    # control
     'if','then','else','elseif','elif','otherwise','also','end',
-    'repeat','times','while','do','for','each','in','from','step',
-    'define','function','with','call','return','break','continue',
-    'ask','and','store','input','not','or','as',
-    # logic
-    'both','either','neither','all','any','is','true','false','null','none',
-    'greater','than','less','equal',
+    'unless',
     # loops
-    'loop','forever','until',
-    # list/dict
+    'repeat','times','while','do','for','each','in','from','step','until',
+    'loop','forever',
+    # functions
+    'define','function','with','call','return','break','continue',
+    # OOP
+    'class','new','self','super','inherit','extends','extend','has',
+    'constructor','property','method','instanceof','object',
+    # input
+    'ask','and','store','input','prompt',
+    # logic
+    'not','or','both','either','is','true','false','null','none',
+    'greater','than','less','equal','at','least','most',
+    'between','within',
+    # articles (silently consumed)
+    'the','a','an',
+    # module
+    'import','use','module','export','from','package','as',
+    # collections
     'list','item','of','add','remove','insert','at','pop','create',
-    'map','dict','key','value','keys','values','has',
+    'map','dict','key','value','keys','values',
     'sort','shuffle','count','index','slice','unique','flatten',
     'sum','average','first','last','empty','reverse','contains',
-    'starts','ends','length',
+    'starts','ends','length','items',
     # math
-    'sqrt','abs','floor','ceil','round','power','random','between',
+    'sqrt','abs','floor','ceil','round','power','random',
     'pi','max','min','mod','log10','log2','sin','cos','tan',
     'degrees','radians','clamp','lerp','sign','gcd','lcm',
+    'asin','acos','atan',
     # string
     'uppercase','lowercase','trim','split','join','replace','substring',
-    'number','string','boolean','convert','format','type','repeat_str',
-    'pad_left','pad_right','count_of','char','code','regex','matches',
-    # type system
-    'number_type','string_type','list_type','dict_type','bool_type','null_type',
+    'number','string','type','titlecase','camelcase','snakecase',
+    'repeat_str','pad_left','pad_right','count_of','char_at','char_code',
+    'from_code','number_format','pluralize','format_str',
+    'regex','matches','find_all','replace_regex','split_lines',
+    # type checks
+    'to_bool','to_list',
+    'is_number','is_string','is_list','is_dict','is_null','is_bool',
+    'is_prime','is_even','is_odd','factorial','fibonacci',
     # file
-    'open','file','read','write','append','close','exists','delete','lines','copy',
-    'move','rename','mkdir','listdir','isfile','isdir','size_of','ext_of',
+    'open','file','read','write','append','close','delete',
+    'read_file','write_file','append_file',
+    'file_exists','is_file','is_dir','file_size','file_ext',
+    'file_name','file_dir','list_dir','path_join',
     # json
-    'json','parse','stringify','load','save','dump',
+    'json_parse','json_stringify','json_pretty','save','load',
     # error
-    'try','catch','error','throw','raise','finally',
-    # modules (native Neglish)
-    'import','use','module','export','from','package',
+    'try','catch','error','throw','raise','assert',
     # time
-    'time','date','now','today','sleep','wait','seconds','milliseconds','ms',
-    'timestamp','year','month','day','hour','minute','second','weekday',
+    'now','today','sleep','wait','seconds','milliseconds','ms',
+    'timestamp','time_ms','year','month','day','hour','minute','second','weekday',
     # system
-    'exit','quit','clear','run','command','env','args','argument','platform',
-    'username','hostname','pid','cwd','sep',
+    'exit','quit','clear','run','env_get',
+    'platform','username','hostname','pid','cwd','sep',
+    # pattern matching
+    'match','when','case','default','pattern','where',
     # GUI
-    'window','button','label','entry','textbox','checkbox','dropdown',
-    'image','canvas','frame','progress','menu','menubar','separator',
-    'tab','width','height','color','background','foreground','font',
-    'size','bold','italic','x','y','row','column',
-    'hide','destroy','focus','title','icon','resize',
-    'alert','confirm','info','warning','update',
-    'when','clicked','changed','submitted','on','emit','trigger','event','listen',
-    'show','get',
-    # math ops (word form)
-    'plus','minus','times_word','divided','by',
-    # network
-    'fetch','url','post','send','receive','response','request','header',
-    'body','status','method',
-    # concurrent / async
-    'async','await','parallel','task','spawn','after','every','timeout',
-    'cancel','join_tasks',
-    # data pipeline
-    'pipe','filter','map_fn','reduce','each_do','collect','zip_with',
-    'take','drop','chunk','group_by','order_by','where',
-    # scope / variables
-    'global','local','const','let','freeze',
-    # OOP-lite
-    'object','property','method','class','inherit','extend','self','new',
-    # pattern match
-    'switch','match','case','default','when',
-    # assertions / test
-    'assert','test','describe','expect','should','be','equal_to',
-    'pass','fail','check',
-    # color terminal
-    'red','green','blue','yellow','cyan','magenta','white','black','colored',
+    'window','button','label','entry','progress',
+    'width','height','color','background','foreground',
+    'font','size','bold','italic','x','y','row','column',
+    'hide','title','resize','alert','confirm','update','get',
+    'clicked','changed','submitted', 'frame', 'tab_group', 'tab',
+    'image', 'chart', 'dialog', 'toast', 'bind_key', 'play_sound',
+    # lambda
+    'lambda','fn','given','using',
+    # pipelines
+    'filter','collect','pipe','through','reduce','map_fn','zip_with',
+    'group_by','order_by','take','drop','chunk',
+    # concurrency
+    'spawn','after','every','async',
+    # reactive
+    'watch','freeze','memo','benchmark',
+    # events
+    'emit','on','listen',
+    # networking (v4.1)
+    'fetch','post','put','delete','patch','request',
+    'http_get','http_post','http_put','http_delete','http_patch',
+    'fetch_json','json_api','websocket','ws_send','ws_close',
+    'download','upload','base64_encode','base64_decode',
+    'url_encode','url_decode','parse_url','build_url',
+    # web/full-stack (v4.3)
+    'html','css','javascript','js','frontend','backend','serve','host',
+    'website','webview','template','static','assets','api','endpoint',
+    'port','localhost','open_url','stop_server','fusion',
     # debug
-    'debug','inspect','trace','benchmark','profile',
-    # misc unique
-    'memo','cache','once','throttle','debounce',
-    'watch','changed','observe',
-    'range','enumerate','zip_pairs',
-    'flatten_deep','compact','pluck',
-    'uuid','hash_of','encrypt','decrypt',
-    'number_format','pluralize','titlecase','camelcase','snakecase',
+    'debug','inspect','trace',
+    'uuid','hash_of',
+    # test
+    'describe','test','expect','check','should','be','equal_to',
+    # extra list builtins
+    'max_of','min_of','median','stdev','variance',
+    'sort_desc','flatten_deep','compact','sample',
+    'contains_all','contains_any','intersection','difference','union',
+    'zip_pairs','enumerate_list','range_list','pluck',
+    'weighted_choice','choice',
+    # misc
+    'percent','percent_of','run_cmd','sleep_ms','global',
+    'dict_has','dict_merge','dict_size','dict_to_list',
+    'dict_keys','dict_values',
+}
+
+SYNONYMS = {
+    'display': 'show', 'output': 'show', 'echo': 'show',
+    'let':     'set',
+    'extends': 'inherit', 'extend': 'inherit',
+    'fn':      'lambda', 'given': 'lambda', 'using': 'lambda',
+    'prompt':  'ask',
+    'also':    'else', 'otherwise': 'else',
+    'True':    'true', 'False': 'false', 'None': 'null',
+    'unless':  'unless',
 }
 
 class Token:
     def __init__(self, type_, value, line=0):
-        self.type  = type_
-        self.value = value
-        self.line  = line
+        self.type = type_; self.value = value; self.line = line
     def __repr__(self):
         return f'Token({self.type}, {self.value!r}, line={self.line})'
 
-
 class Lexer:
-    def __init__(self, source: str):
-        self.source = source
-        self.pos    = 0
-        self.line   = 1
-        self.tokens = []
+    def __init__(self, source):
+        self.source = source; self.pos = 0; self.line = 1; self.tokens = []
 
-    def peek(self, offset=0):
-        idx = self.pos + offset
-        return self.source[idx] if idx < len(self.source) else ''
+    def peek(self, o=0):
+        i = self.pos + o
+        return self.source[i] if i < len(self.source) else ''
 
     def advance(self):
         ch = self.source[self.pos]; self.pos += 1
@@ -120,31 +149,56 @@ class Lexer:
         return ch
 
     def skip_ws(self):
-        while self.pos < len(self.source) and self.peek() in (' ', '\t', '\r'):
+        while self.pos < len(self.source) and self.peek() in (' ','\t','\r'):
             self.advance()
 
-    def read_string(self, quote):
+    def read_string(self, q):
         self.advance()
         buf = []
         while self.pos < len(self.source):
             ch = self.advance()
-            if ch == quote: break
+            if ch == q: break
             if ch == '\\':
-                esc = self.advance()
-                buf.append({'n':'\n','t':'\t','r':'\r','\\':'\\',
-                            '"':'"',"'":"'",'0':'\0'}.get(esc, esc))
-            else:
-                buf.append(ch)
+                e = self.advance()
+                buf.append({'n':'\n','t':'\t','r':'\r','\\':'\\','"':'"',"'":"'",'0':'\0'}.get(e,e))
+            else: buf.append(ch)
         return ''.join(buf)
 
-    def read_triple_string(self):
-        for _ in range(3): self.advance()
+    def read_triple(self):
+        # consume the opening triple-quote (3 chars already peeked)
+        self.pos += 3
         buf = []
-        while self.pos < len(self.source) - 2:
-            if self.source[self.pos:self.pos+3] == '"""':
-                for _ in range(3): self.advance()
+        while self.pos < len(self.source):
+            # check for closing triple-quote
+            if (self.source[self.pos] == '"' and 
+                self.pos + 2 < len(self.source) and
+                self.source[self.pos+1] == '"' and
+                self.source[self.pos+2] == '"'):
+                self.pos += 3
                 break
-            buf.append(self.advance())
+            ch = self.source[self.pos]
+            self.pos += 1
+            if ch == '\n':
+                self.line += 1
+            buf.append(ch)
+        return ''.join(buf)
+
+    def read_heredoc(self):
+        for _ in range(3): self.advance()  # consume <<<
+        self.skip_ws()
+        label = []
+        while self.pos < len(self.source) and self.peek() not in ('\n',' ','\t'):
+            label.append(self.advance())
+        label = ''.join(label).strip()
+        if self.peek() == '\n': self.advance()
+        buf = []
+        while self.pos < len(self.source):
+            line_buf = []
+            while self.pos < len(self.source) and self.peek() != '\n':
+                line_buf.append(self.advance())
+            if ''.join(line_buf).strip() == label: break
+            buf.append(''.join(line_buf))
+            if self.peek() == '\n': buf.append('\n'); self.advance()
         return ''.join(buf)
 
     def read_number(self):
@@ -155,18 +209,13 @@ class Lexer:
         if not raw: return 0
         if raw == '0' and self.peek() in ('x','X'):
             self.advance()
-            hb = []
+            h = []
             while self.pos < len(self.source) and self.peek() in '0123456789abcdefABCDEF':
-                hb.append(self.advance())
-            return int(''.join(hb), 16) if hb else 0
-        if raw == '0' and self.peek() in ('b','B'):
-            self.advance()
-            bb = []
-            while self.pos < len(self.source) and self.peek() in '01':
-                bb.append(self.advance())
-            return int(''.join(bb), 2) if bb else 0
+                h.append(self.advance())
+            return int(''.join(h),16) if h else 0
         if raw == '.': return 0.0
-        return float(raw) if '.' in raw else int(raw)
+        try: return float(raw) if '.' in raw else int(raw)
+        except: return 0
 
     def read_word(self):
         buf = []
@@ -175,88 +224,72 @@ class Lexer:
         return ''.join(buf)
 
     def skip_line(self):
-        while self.pos < len(self.source) and self.peek() != '\n':
-            self.advance()
+        while self.pos < len(self.source) and self.peek() != '\n': self.advance()
 
     def tokenize(self):
         src = self.source
         while self.pos < len(src):
             self.skip_ws()
             if self.pos >= len(src): break
+            ch = self.peek(); line = self.line
 
-            ch   = self.peek()
-            line = self.line
-
-            # comments
-            if ch == '#':
-                self.advance(); self.skip_line(); continue
-            if ch == '/' and self.peek(1) == '/':
-                self.advance(); self.advance(); self.skip_line(); continue
+            if ch == '#': self.advance(); self.skip_line(); continue
+            if ch == '/' and self.peek(1) == '/': self.advance(); self.advance(); self.skip_line(); continue
             if ch == '/' and self.peek(1) == '*':
                 self.advance(); self.advance()
-                while self.pos < len(src) - 1:
-                    if src[self.pos:self.pos+2] == '*/':
-                        self.advance(); self.advance(); break
+                while self.pos < len(src)-1:
+                    if src[self.pos:self.pos+2] == '*/': self.advance(); self.advance(); break
                     self.advance()
                 continue
 
-            # newline
             if ch == '\n':
                 self.advance()
                 if self.tokens and self.tokens[-1].type != TT_NEWLINE:
-                    self.tokens.append(Token(TT_NEWLINE, '\n', line))
+                    self.tokens.append(Token(TT_NEWLINE,'\n',line))
                 continue
 
-            # triple-string
+            # heredoc <<<LABEL
+            if src[self.pos:self.pos+3] == '<<<':
+                self.tokens.append(Token(TT_STRING, self.read_heredoc(), line)); continue
+
+            # triple string
             if src[self.pos:self.pos+3] == '"""':
-                self.tokens.append(Token(TT_STRING, self.read_triple_string(), line))
-                continue
+                self.tokens.append(Token(TT_STRING, self.read_triple(), line)); continue
 
-            # strings
-            if ch in ('"', "'"):
-                self.tokens.append(Token(TT_STRING, self.read_string(ch), line))
-                continue
+            if ch in ('"',"'"):
+                self.tokens.append(Token(TT_STRING, self.read_string(ch), line)); continue
 
-            # positive number
             if ch.isdigit():
-                self.tokens.append(Token(TT_NUMBER, self.read_number(), line))
-                continue
+                self.tokens.append(Token(TT_NUMBER, self.read_number(), line)); continue
 
-            # negative number literal (only after operators / keywords)
+            # negative literal (only in operator context)
             if ch == '-' and self.peek(1).isdigit():
-                prev_type = self.tokens[-1].type if self.tokens else None
-                prev_val  = self.tokens[-1].value if self.tokens else None
-                value_types = (TT_NUMBER, TT_STRING, TT_IDENT)
-                value_kws   = {'to','by','with','and','return','show','say','print',
-                               'log','in','from','store','at','of','do','then'}
-                if prev_type not in value_types or prev_val in value_kws:
+                pt = self.tokens[-1].type if self.tokens else None
+                pv = self.tokens[-1].value if self.tokens else None
+                ctx_kws = {'to','by','with','and','return','show','say','print','log',
+                           'in','from','store','at','of','do','then','display','output','echo'}
+                if pt not in (TT_NUMBER,TT_STRING,TT_IDENT) or pv in ctx_kws:
                     self.advance()
-                    self.tokens.append(Token(TT_NUMBER, -self.read_number(), line))
-                    continue
+                    self.tokens.append(Token(TT_NUMBER,-self.read_number(),line)); continue
 
-            # word / keyword
             if ch.isalpha() or ch == '_':
-                word  = self.read_word()
+                word = self.read_word()
                 lower = word.lower()
-                ttype = TT_KEYWORD if lower in KEYWORDS else TT_IDENT
-                self.tokens.append(Token(ttype, lower if ttype == TT_KEYWORD else word, line))
+                canonical = SYNONYMS.get(lower, lower)
+                ttype = TT_KEYWORD if canonical in KEYWORDS else TT_IDENT
+                self.tokens.append(Token(ttype, canonical if ttype==TT_KEYWORD else word, line))
                 continue
 
-            # two-char ops
             two = src[self.pos:self.pos+2]
-            if two in ('<=','>=','!=','==','+=','-=','*=','/=','**','->','=>','..','::'):
+            if two in ('<=','>=','!=','==','+=','-=','*=','/=','**','->','=>','..','::','??','|>'):
                 self.advance(); self.advance()
-                self.tokens.append(Token(TT_OP, two, line))
-                continue
+                self.tokens.append(Token(TT_OP,two,line)); continue
 
-            # single-char
             if ch in ('+','-','*','/','=','<','>','!',',','(',')','[',']',
                       '{','}',':','.','%','^','&','|','~','@','?','\\'):
-                self.advance()
-                self.tokens.append(Token(TT_OP, ch, line))
-                continue
+                self.advance(); self.tokens.append(Token(TT_OP,ch,line)); continue
 
-            self.advance()  # skip unknown
+            self.advance()
 
-        self.tokens.append(Token(TT_EOF, None, self.line))
+        self.tokens.append(Token(TT_EOF,None,self.line))
         return self.tokens

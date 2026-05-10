@@ -1,367 +1,449 @@
 # ═══════════════════════════════════════════════════════════
-#  main.neg  —  Neglish v3  Feature Showcase
+#  main.neg  —  Neglish v4  All New Features Showcase
 #  Run:  python main.py main.neg --nogui
 # ═══════════════════════════════════════════════════════════
 
-colored cyan "═══════════════════════════════════════"
-colored cyan "   NEGLISH v3 — FULL FEATURE SHOWCASE  "
-colored cyan "═══════════════════════════════════════"
+colored cyan "╔════════════════════════════════════╗"
+colored cyan "║     NEGLISH v4  —  FEATURE DEMO    ║"
+colored cyan "╚════════════════════════════════════╝"
 
-# ─── 1. NATIVE MODULE IMPORTS (Neglish → Neglish) ─────────
-import math as m
-import strings as str_lib
-import collections as col
+# ═══════════════════════════════════════════
+# FEATURE 1: FULL OOP — Classes & Objects
+# ═══════════════════════════════════════════
+colored yellow "── 1. Full OOP ──"
 
-show "✓ Native Neglish modules imported"
-show "PI from math module: " + m.PI
-
-# ─── 2. FROZEN CONSTANTS ──────────────────────────────────
-set MAX_SCORE to 100
-freeze MAX_SCORE
-show "MAX_SCORE (frozen): " + MAX_SCORE
-
-try
-    set MAX_SCORE to 999
-catch error as e
-    colored red "✓ Freeze works: " + e
-end
-
-# ─── 3. NATIVE MATH LIBRARY ───────────────────────────────
-show ""
-colored yellow "── Math Library ──"
-set sq to call m.square with 7
-set hyp to call m.hypotenuse with 3, 4
-set pct to call m.percent with 45, 200
-show "7 squared = " + sq
-show "Hypotenuse(3,4) = " + hyp
-show "45 of 200 = " + pct + "%"
-show "Collatz(27) steps = " + call m.collatz with 27
-
-# ─── 4. NATIVE STRING LIBRARY ─────────────────────────────
-colored yellow "── String Library ──"
-set wc to call str_lib.word_count with "Hello beautiful world"
-show "Word count: " + wc
-show "Is palindrome 'racecar': " + call str_lib.is_palindrome with "racecar"
-show "Is palindrome 'hello': " + call str_lib.is_palindrome with "hello"
-show "Vowels in 'programming': " + call str_lib.count_vowels with "programming"
-set slug to call str_lib.slug_from with "Hello World Page"
-show "Slug: " + slug
-
-# ─── 5. NATIVE COLLECTIONS LIBRARY ───────────────────────
-colored yellow "── Collections Library ──"
-set nums to call col.range_list with 1, 8
-show "Range 1-8: " + join nums with ", "
-create list letters with "a", "b", "c", "d"
-set rot to call col.rotate_left with letters, 2
-show "Rotated left by 2: " + join rot with ", "
-create list data with 3, 1, 4, 1, 5, 9, 2, 6, 5, 3
-set freq to call col.frequency_map with data
-# Frequency map - the data has repeated values
-# Use key access on the map
-set freq_keys to join keys of freq with ", "
-show "Unique values in data: " + freq_keys
-
-# ─── 6. DATA PIPELINE — FILTER ────────────────────────────
-colored yellow "── Data Pipelines ──"
-create list scores with 88, 45, 92, 67, 78, 95, 33, 81
-filter scores where score is greater than 75 as high_scores
-show "Scores > 75: " + join high_scores with ", "
-
-# ─── 7. DATA PIPELINE — MAP ────────────────────────────────
-map_fn scores with score as score * 2 store in doubled
-show "Doubled scores (first 3): " + item 1 of doubled + ", " + item 2 of doubled + ", " + item 3 of doubled
-
-# ─── 8. DATA PIPELINE — REDUCE ────────────────────────────
-reduce scores with 0 using score as acc + score store in total_score
-show "Pipeline results: filter + map + collect working!"
-
-# ─── 9. COLLECT (list comprehension-like) ─────────────────
-collect n from nums where n is greater than 4 as big_nums
-show "Nums > 4: " + join big_nums with ", "
-
-# ─── 10. OOP — CLASSES ────────────────────────────────────
-colored yellow "── Object-Oriented Programming ──"
-
-# OOP with property-based objects
-define function make_animal with name, sound
-    create map obj with "name" as name, "sound" as sound
-    return obj
-end
-
-define function animal_speak with obj
-    show key "name" of obj + " says: " + key "sound" of obj
-end
-
-define function make_dog with name
-    create map dog with "name" as name, "sound" as "Woof"
-    create list tricks with
-    set key "tricks" of dog to tricks
-    return dog
-end
-
-define function dog_learn with dog, trick
-    set t to key "tricks" of dog
-    add trick to t
-end
-
-define function dog_tricks with dog
-    set t to key "tricks" of dog
-    show key "name" of dog + " knows: " + join t with ", "
-end
-
-set rex to call make_dog with "Rex"
-call animal_speak with rex
-call dog_learn with rex, "sit"
-call dog_learn with rex, "fetch"
-call dog_learn with rex, "roll over"
-call dog_tricks with rex
-
-# ─── 11. MEMOISED FUNCTIONS ───────────────────────────────
-colored yellow "── Memoisation ──"
-
-memo function expensive_fib with n
-    if n is less than 2 then
-        return n
+class Shape
+    define function init with name, color
+        set self.name to name
+        set self.color to color
     end
-    set a to call expensive_fib with n - 1
-    set b to call expensive_fib with n - 2
-    return a + b
-end
-
-set fib_result to 0
-benchmark "Fib(30) memoised"
-    set fib_result to call expensive_fib with 30
-end
-show "Fib(30) = " + fib_result
-
-# ─── 12. TESTING FRAMEWORK ────────────────────────────────
-colored yellow "── Built-in Test Framework ──"
-
-describe "Math Tests"
-    test "addition"
-        expect 2 + 2 should be 4
+    define function describe
+        return self.color + " " + self.name
     end
-
-    test "string concat"
-        expect "hello" + " " + "world" should be "hello world"
-    end
-
-    test "list length"
-        create list t with 1, 2, 3
-        expect length of t should be 3
-    end
-
-    test "is prime"
-        check is_prime of 17
-        check is_prime of 97
+    define function area
+        return 0
     end
 end
 
-describe "String Tests"
-    test "palindrome"
-        expect call str_lib.is_palindrome with "racecar" should be true
-        expect call str_lib.is_palindrome with "hello" should be false
+class Circle inherit Shape
+    define function init with radius, color
+        set self.name to "Circle"
+        set self.color to color
+        set self.radius to radius
     end
+    define function area
+        return 3.14159 * self.radius * self.radius
+    end
+    define function greet with who
+        show "Hello " + who + "! I am a " + call self.describe + " with area " + call self.area
+    end
+end
 
-    test "word count"
-        expect call str_lib.word_count with "one two three" should be 3
+class Rectangle inherit Shape
+    define function init with w, h, color
+        set self.name to "Rectangle"
+        set self.color to color
+        set self.width to w
+        set self.height to h
+    end
+    define function area
+        return self.width * self.height
+    end
+end
+
+new Circle with 5, "red" as c
+new Rectangle with 4, 6, "blue" as r
+
+show call c.describe
+show "Circle area: " + call c.area
+call c.greet with "Ahmad"
+show call r.describe
+show "Rectangle area: " + call r.area
+
+# OOP with list property
+class Team
+    define function init with name
+        set self.name to name
+        create list self.members with
+        set self.score to 0
+    end
+    define function add_member with person
+        add person to self.members
+    end
+    define function award_points with pts
+        increase self.score by pts
+    end
+    define function summary
+        show "Team: " + self.name
+        show "Members: " + join self.members with ", "
+        show "Score: " + self.score
     end
 end
 
-# ─── 13. ASYNC / SPAWN ─────────────────────────────────────
-colored yellow "── Async Tasks ──"
+new Team with "Neglish Devs" as team
+call team.add_member with "Ahmad"
+call team.add_member with "Sara"
+call team.add_member with "Ali"
+call team.award_points with 100
+call team.award_points with 50
+call team.summary
 
-define function background_task with id
-    sleep 100 milliseconds
-    show "Task " + id + " completed!"
+# ═══════════════════════════════════════════
+# FEATURE 2: SYMBOL ALIASES (> == != etc.)
+# ═══════════════════════════════════════════
+colored yellow "── 2. Symbol Aliases ──"
+
+set x to 42
+set y to 100
+
+# Symbols work the same as English phrases
+if x > 10 then
+    show "x > 10  ✓"
 end
 
-spawn background_task with 1
-spawn background_task with 2
-spawn background_task with 3
-sleep 400 milliseconds
-show "All spawned tasks should have run by now"
+if y == 100 then
+    show "y == 100  ✓"
+end
 
-# ─── 14. WATCHERS / REACTIVITY ────────────────────────────
-colored yellow "── Reactive Watchers ──"
+if x != y then
+    show "x != y  ✓"
+end
 
-set temperature to 20
+if x >= 42 and y <= 100 then
+    show "x >= 42 and y <= 100  ✓"
+end
 
-watch temperature
-    show "Temperature changed to: " + new_value
-    if new_value is greater than 35 then
-        colored red "WARNING: Temperature too high!"
+# Symbol compound assignment
+set counter to 0
+counter += 10
+counter -= 3
+counter *= 2
+show "counter = " + counter
+
+# Mix of symbols and English in same program
+create list nums with 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+for i from 1 to 10
+    if i > 5 then
+        show "  " + i + " is > 5"
     end
 end
+
+# ═══════════════════════════════════════════
+# FEATURE 3: NATURAL LANGUAGE FLEXIBILITY
+# ═══════════════════════════════════════════
+colored yellow "── 3. Natural Language Flexibility ──"
+
+# Optional articles: 'the', 'a', 'an' — silently consumed
+set the score to 95
+set a name to "Ahmad"
+set an age to 25
+show the score
+show a name
+show an age
+
+# Synonyms: display / output / echo / log = show
+display "display works!"
+output "output works!"
+echo   "echo works!"
+log    "log works!"
+
+# let = set
+let nickname to "Coder"
+show nickname
+
+# unless = if not
+set is_banned to false
+unless is_banned then
+    show "User is allowed in!"
+end
+
+# prompt = ask (when used interactively)
+# show "prompt is an alias for ask"
+
+# ═══════════════════════════════════════════
+# FEATURE 4: IMPROVED COMPARISONS
+# ═══════════════════════════════════════════
+colored yellow "── 4. Enhanced Comparisons ──"
 
 set temperature to 25
-set temperature to 38
-set temperature to 22
+set score to 85
 
-# ─── 15. BENCHMARK ────────────────────────────────────────
-colored yellow "── Benchmarking ──"
-
-set bench_total to 0
-benchmark "Sum of 1 to 10000"
-    for i from 1 to 10000
-        increase bench_total by i
-    end
-end
-show "Sum = " + bench_total
-
-# ─── 16. EVENTS SYSTEM ─────────────────────────────────────
-colored yellow "── Event System ──"
-
-on user_login
-    show "User logged in with data: " + event_data
+# is at least / is at most
+if temperature is at least 20 then
+    show "Temperature is at least 20°  ✓"
 end
 
-on user_login
-    colored green "Secondary handler: welcome!"
+if score is at most 100 then
+    show "Score is at most 100  ✓"
 end
 
-emit user_login with "Ahmad"
+# is between A and B
+if temperature is between 0 and 40 then
+    show "Temperature is between 0 and 40  ✓"
+end
 
-# ─── 17. ADVANCED MATH BUILTINS ───────────────────────────
-colored yellow "── Advanced Math ──"
-show "sin(90°) = " + sin of 90
-show "cos(0°) = " + cos of 0
-show "log10(1000) = " + log10 of 1000
-show "gcd(48, 18) = " + gcd of 48 and 18
-show "lcm(4, 6) = " + lcm of 4 and 6
-show "is_prime(97) = " + is_prime of 97
-show "fibonacci(10) = " + fibonacci of 10
-show "factorial(7) = " + factorial of 7
+if score is between 80 and 90 then
+    show "Score is between 80 and 90  ✓"
+end
 
-# ─── 18. ADVANCED STRING BUILTINS ─────────────────────────
-colored yellow "── Advanced String Ops ──"
-show camelcase of "hello world test"
-show snakecase of "helloWorldTest"
-show titlecase of "the quick brown fox"
-show "Number formatted: " + number_format of 9876 and 2
-show number_format of 1234567.89 and 2
-show pluralize of "cat" and 1
-show pluralize of "cat" and 3
+# is approximately
+set pi_approx to 3.14
+if pi_approx is approximately 3.14159 then
+    show "pi_approx is approximately PI  ✓"
+end
 
-# ─── 19. ADVANCED LIST BUILTINS ───────────────────────────
-colored yellow "── Advanced List Ops ──"
-create list mixed with 3, 1, 4, 1, 5, 9, 2, 6
-show "Sum: " + sum of mixed
-show "Average: " + average of mixed
-show "Unique: " + join unique of mixed with ", "
-set sorted_asc to sort of mixed
-show "Sorted: " + join sorted_asc with ", "
-show "First: " + first of mixed
-show "Last: " + last of mixed
-set compacted to compact of [1, 0, 2, false, 3, null]
-show "Compact: " + join compacted with ", "
+# Null / empty handling
+set maybe to null
+if maybe is equal to null then
+    show "null check works  ✓"
+end
 
-# ─── 20. TYPE CHECKING ─────────────────────────────────────
-colored yellow "── Type System ──"
-show "is_number of 42: " + is_number of 42
-show "is_string of 'hi': " + is_string of "hi"
-show "is_list of []: " + is_list of []
-show "is_null of null: " + is_null of null
-show "to_bool of 0: " + to_bool of 0
-show "to_bool of 'text': " + to_bool of "text"
+create list empty with
+if empty is empty then
+    show "empty list check works  ✓"
+end
 
-# ─── 21. SWITCH / MATCH ────────────────────────────────────
-colored yellow "── Switch / Match ──"
-set day_num to 3
-switch day_num
-    case 1 then
-        show "Monday"
-    case 2 then
-        show "Tuesday"
-    case 3 then
-        show "Wednesday"
+# Chained logic
+set age to 22
+if age is at least 18 and age is at most 65 then
+    show "Age " + age + " is working age  ✓"
+end
+
+# ═══════════════════════════════════════════
+# FEATURE 5: PATTERN MATCHING
+# ═══════════════════════════════════════════
+colored yellow "── 5. Pattern Matching ──"
+
+# Basic match
+set day to "Monday"
+match day
+    when "Monday" then
+        colored green "Start of week!"
+    when "Friday" then
+        colored green "End of week!"
+    when "Saturday" then
+        colored green "Weekend!"
+    when "Sunday" then
+        colored green "Weekend!"
     default then
-        show "Other day"
+        show "Midweek: " + day
 end
 
-# ─── 22. TRY / CATCH / FINALLY ────────────────────────────
-colored yellow "── Error Handling ──"
-try
-    throw "Custom error!"
-catch error as e
-    show "Caught: " + e
+# Match with guard (where clause)
+set grade to 87
+
+match grade
+    when 100 where grade > 95 then
+        show "Perfect!"
+    when grade where grade is at least 90 then
+        colored green "Grade A: " + grade
+    when grade where grade is at least 80 then
+        colored cyan "Grade B: " + grade
+    when grade where grade is at least 70 then
+        colored yellow "Grade C: " + grade
+    default then
+        colored red "Grade F: " + grade
 end
 
-# ─── 23. FOR RANGE WITH STEP ──────────────────────────────
-colored yellow "── For Range Step ──"
-create list evens_list with 2, 4, 6, 8, 10
-show "Evens 2-10: " + join evens_list with " "
-
-# ─── 24. NESTED FUNCTIONS & CLOSURES ──────────────────────
-colored yellow "── Closures ──"
-
-define function make_counter with start
-    set count to start
-    define function increment
-        increase count by 1
-        return count
+# Match with wildcard _
+define function classify with n
+    match n
+        when 0 then
+            return "zero"
+        when 1 then
+            return "one"
+        when n where n is less than 0 then
+            return "negative"
+        when n where n is greater than 1000 then
+            return "very large"
+        when _ then
+            return "other: " + n
     end
-    return increment
 end
 
-set counter_fn to call make_counter with 10
-show "Counter: " + call counter_fn
-show "Counter: " + call counter_fn
-show "Counter: " + call counter_fn
+show call classify with 0
+show call classify with 1
+show call classify with -5
+show call classify with 9999
+show call classify with 42
 
-# ─── 25. JSON SAVE / LOAD ─────────────────────────────────
-colored yellow "── JSON ──"
-create map profile with "name" as "Ahmad", "level" as 42, "score" as 9999
-save profile to "profile.json"
-load "profile.json" in loaded_profile
-show "Loaded name: " + key "name" of loaded_profile
-show "Loaded level: " + key "level" of loaded_profile
+# ═══════════════════════════════════════════
+# FEATURE 6: LAMBDAS / ANONYMOUS FUNCTIONS
+# ═══════════════════════════════════════════
+colored yellow "── 6. Lambdas & Anonymous Functions ──"
 
-# ─── 26. FILE I/O ─────────────────────────────────────────
-colored yellow "── File I/O ──"
-open "notes.txt" as f for write
-write "Neglish v3 is awesome!" to f
-write "Line 2 here" to f
-close f
-open "notes.txt" as f for read
-read f and store in note_content
-close f
-show "File read: " + trim of note_content
+# Lambda syntax: lambda params -> expression
+set double to lambda x -> x * 2
+set square to lambda x -> x * x
+set add to lambda x, y -> x + y
+set greet_fn to lambda name -> "Hello, " + name + "!"
 
-# ─── 27. SYSTEM INFO ──────────────────────────────────────
-colored yellow "── System Info ──"
-show "Platform: " + platform of ""
-show "CWD: " + cwd of ""
-show "Time: " + now of ""
-show "Date: " + today of ""
-show "Weekday: " + weekday of ""
+show call double with 5
+show call square with 7
+show call add with 3, 4
+show call greet_fn with "Ahmad"
 
-# ─── 28. COLORED OUTPUT ────────────────────────────────────
-colored red    "Red text output"
-colored green  "Green text output"
-colored yellow "Yellow text output"
-colored blue   "Blue text output"
-colored cyan   "Cyan text output"
-colored magenta "Magenta text output"
+# Lambdas in pipelines
+create list numbers with 1, 2, 3, 4, 5
 
-# ─── 29. HASH & UUID ──────────────────────────────────────
-colored yellow "── Hash & UUID ──"
-show "SHA256('hello'): " + hash_of of "hello"
-show "UUID: " + uuid of ""
-show "UUID: " + uuid of ""
+# map_fn with expression
+map_fn numbers with n as n * 2 store in doubled
+show "Doubled: " + join doubled with ", "
 
-# ─── 30. AFTER DELAY / EVERY TIMER ─────────────────────────
-colored yellow "── Timers ──"
+# filter
+filter numbers where n is greater than 3 as big_nums
+show "Big nums: " + join big_nums with ", "
 
-after 200 milliseconds
-    colored green "After 200ms — delayed task fired!"
+# Lambda as first-class function parameter
+define function apply_all with lst, fn
+    create list out with
+    for each n in lst
+        set v to call fn with n
+        add v to out
+    end
+    return out
 end
 
-sleep 300 milliseconds
-show "300ms elapsed — after block should have run"
+set cube_fn to lambda x -> x * x * x
+set cubed to call apply_all with numbers, cube_fn
+show "Cubed: " + join cubed with ", "
 
-# ─── FINAL SUMMARY ─────────────────────────────────────────
-show ""
-colored cyan "═══════════════════════════════════════"
-colored cyan "   All features demonstrated!           "
-colored cyan "═══════════════════════════════════════"
+# Compose two lambdas
+define function compose with f, g
+    define function composed with x
+        set inner to call g with x
+        return call f with inner
+    end
+    set fn_ref to composed
+    return fn_ref
+end
+
+set add_one to lambda x -> x + 1
+set times_three to lambda x -> x * 3
+set add_one_then_triple to call compose with times_three, add_one
+show "compose(3*)(+1)(5) = " + call add_one_then_triple with 5
+
+# ═══════════════════════════════════════════
+# FEATURE 7: MULTI-LINE STRINGS & HEREDOC
+# ═══════════════════════════════════════════
+colored yellow "── 7. Multi-line Strings & Heredoc ──"
+
+# Triple-quoted multi-line string
+set poem to """
+Roses are red,
+Neglish is cool,
+Write English code
+And break every rule.
+"""
+show poem
+
+# Heredoc-style string
+set letter to <<<END
+Dear Ahmad,
+
+Welcome to Neglish v4!
+This is a heredoc string.
+It preserves all whitespace.
+
+Best regards,
+The Neglish Team
+END
+show letter
+
+# Multi-line string in a variable used multiple ways
+set sql_query to """
+SELECT *
+FROM users
+WHERE active = true
+ORDER BY name
+"""
+show "Query length: " + length of sql_query
+
+# String operations on multiline strings
+set lines_list to split_lines of poem
+show "Poem lines: " + length of lines_list
+
+# ═══════════════════════════════════════════
+# FEATURE 8: NATURAL LIST / DICT CREATION
+# ═══════════════════════════════════════════
+colored yellow "── 8. Natural List & Dict Creation ──"
+
+# New natural syntax variants
+create list with items 10, 20, 30, 40, 50 as nat_list
+show "Natural list: " + join nat_list with ", "
+
+# Dict with colon syntax  
+create map person with "name" as "Ahmad", "age" as 25, "city" as "Lahore"
+show "Person: " + key "name" of person + ", " + key "age" of person
+
+# Dict with multiple entries on separate lines (using add pattern)
+create map config with "debug" as false, "version" as "4.0", "maxItems" as 100
+show "Config version: " + key "version" of config
+
+# List literal syntax [a, b, c]
+set coords to [10, 20, 30]
+show "Coord 2: " + item 2 of coords
+
+# Dict literal syntax {key: val}
+set point to {"x": 100, "y": 200, "label": "origin"}
+show "Point x: " + key "x" of point
+
+# Natural language: 'create list with items ...'
+create list colors with items "red", "green", "blue", "yellow"
+show "Colors: " + join colors with " | "
+
+# Nested structures
+create map team_data with "name" as "Neglish", "version" as 4
+create list features with "OOP", "Lambdas", "Pattern Matching", "Heredocs"
+set key "features" of team_data to features
+show "Team: " + key "name" of team_data
+show "Features: " + join features with ", "
+
+# ═══════════════════════════════════════════
+# BONUS: All Features Combined
+# ═══════════════════════════════════════════
+colored yellow "── BONUS: Combined Features ──"
+
+# OOP + Lambdas + Pattern Match all together
+class Calculator
+    define function init with label
+        set self.label to label
+        set self.memory to 0
+    end
+    define function compute with operation, a, b
+        set r to call operation with a, b
+        set self.memory to r
+        return r
+    end
+    define function recall
+        return self.memory
+    end
+end
+
+new Calculator with "MyCalc" as calc
+
+set adder   to lambda x, y -> x + y
+set subber  to lambda x, y -> x - y
+set multer  to lambda x, y -> x * y
+
+set r1 to call calc.compute with adder, 10, 5
+show "10 + 5 = " + r1
+
+set r2 to call calc.compute with multer, 6, 7
+show "6 x 7 = " + r2
+
+show "Memory: " + call calc.recall
+
+# Pattern match on the result
+match r2
+    when 42 then
+        colored green "The answer to everything! 42"
+    when r2 where r2 is greater than 40 then
+        colored cyan "Large result: " + r2
+    when _ then
+        colored yellow "Result: " + r2
+end
+
+colored cyan "╔════════════════════════════════════╗"
+colored cyan "║   All 8 features demonstrated! ✓   ║"
+colored cyan "╚════════════════════════════════════╝"

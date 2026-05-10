@@ -1,10 +1,12 @@
-# interpreter.py — Neglish v3 Full Runtime
+# interpreter.py — Neglish v4.1 Full Runtime
 # Independent language: no Python imports needed in user code
 
 from __future__ import annotations
 import sys, os, math, random, time, json, subprocess, re, hashlib
 import threading, copy, uuid as _uuid_mod, platform as _platform_mod
 import importlib, traceback
+from urllib.parse import urlparse
+from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 
 # ══════════════════════════════════════════════ signals
 class ReturnSignal(Exception):
@@ -115,9 +117,10 @@ class Environment:
 # ══════════════════════════════════════════════ Neglish objects
 
 class NegFunction:
-    def __init__(self, name, params, body, closure, is_async=False, is_memo=False):
+    def __init__(self, name, params, body, closure, is_async=False, is_memo=False, defaults=None):
         self.name, self.params, self.body = name, params, body
         self.closure, self.is_async = closure, is_async
+        self.defaults = defaults or {}
         self._cache = {} if is_memo else None
     def __repr__(self): return f"<function {self.name}>"
 
@@ -134,6 +137,14 @@ class NegObject:
     def get(self, k): return self.props.get(k)
     def set(self, k, v): self.props[k] = v
     def __repr__(self): return f"<{self.class_name} object>"
+
+class NegLambda:
+    """Anonymous function created by lambda expr."""
+    def __init__(self, params, body_expr, closure):
+        self.params = params
+        self.body_expr = body_expr  # single expression (not a block)
+        self.closure = closure
+    def __repr__(self): return f"<lambda ({', '.join(self.params)})>"
 
 class NegFile:
     def __init__(self, path, mode):
@@ -191,6 +202,55 @@ class TestRunner:
         return self.failed == 0
 
 # ══════════════════════════════════════════════ stdlib (100% Neglish-native)
+
+# ── Networking stdlib helpers ─────────────────────────────────────────────────
+def _http_get_fn(url, timeout=15, headers=None):
+    import urllib.request
+    hdr = {'User-Agent': 'Neglish/4.1'}
+    if isinstance(headers, dict): hdr.update(headers)
+    try:
+        req = urllib.request.Request(str(url), headers=hdr)
+        with urllib.request.urlopen(req, timeout=float(timeout)) as r:
+            return {'body': r.read().decode('utf-8','replace'), 'status': r.status, 'ok': r.status < 400}
+    except Exception as e:
+        return {'body': str(e), 'status': 0, 'ok': False}
+
+def _http_post_fn(url, data=None, json_data=None, headers=None, timeout=15):
+    import urllib.request, urllib.parse, json as _json
+    hdr = {'User-Agent': 'Neglish/4.1'}
+    if json_data is not None:
+        hdr['Content-Type'] = 'application/json'
+        payload = _json.dumps(json_data).encode()
+    elif isinstance(data, dict):
+        hdr['Content-Type'] = 'application/x-www-form-urlencoded'
+        payload = urllib.parse.urlencode(data).encode()
+    else:
+        payload = str(data or '').encode()
+    if isinstance(headers, dict): hdr.update(headers)
+    try:
+        req = urllib.request.Request(str(url), data=payload, headers=hdr, method='POST')
+        with urllib.request.urlopen(req, timeout=float(timeout)) as r:
+            return {'body': r.read().decode('utf-8','replace'), 'status': r.status, 'ok': r.status < 400}
+    except Exception as e:
+        return {'body': str(e), 'status': 0, 'ok': False}
+
+def _fetch_json_fn(url, timeout=15):
+    import urllib.request, json as _json
+    try:
+        req = urllib.request.Request(str(url), headers={'User-Agent':'Neglish/4.1','Accept':'application/json'})
+        with urllib.request.urlopen(req, timeout=float(timeout)) as r:
+            return _json.loads(r.read().decode('utf-8','replace'))
+    except Exception as e:
+        return {'error': str(e)}
+
+def _download_fn(url, dest_path, timeout=30):
+    import urllib.request
+    try:
+        urllib.request.urlretrieve(str(url), str(dest_path))
+        return True
+    except Exception:
+        return False
+
 def _make_stdlib():
     return {
         # ── Math
@@ -380,6 +440,21 @@ def _make_stdlib():
         'percent_of':     lambda p,total: (_num(p)/_num(total)*100) if _num(total) else 0,
         'percent':        lambda p,total: round(_num(p)/_num(total)*100,2) if _num(total) else 0,
         'interpolate':    lambda t,a,b: str(a)+str(t)+str(b),
+
+        # ── Networking builtins (v4.1)
+        'url_encode':     lambda s: __import__('urllib.parse', fromlist=['quote']).quote(str(s), safe=''),
+        'url_decode':     lambda s: __import__('urllib.parse', fromlist=['unquote']).unquote(str(s)),
+        'base64_encode':  lambda s: __import__('base64').b64encode(str(s).encode()).decode(),
+        'base64_decode':  lambda s: __import__('base64').b64decode(str(s)).decode('utf-8', errors='replace'),
+        'parse_url':      lambda url: dict(zip(
+            ['scheme','netloc','path','params','query','fragment'],
+            __import__('urllib.parse', fromlist=['urlparse']).urlparse(str(url))
+        )),
+        'build_url':      lambda base, **kw: base + ('?' + __import__('urllib.parse', fromlist=['urlencode']).urlencode(kw) if kw else ''),
+        'http_get':       _http_get_fn,
+        'http_post':      _http_post_fn,
+        'fetch_json':     _fetch_json_fn,
+        'download':       _download_fn,
     }
 
 # ── math helpers
@@ -430,6 +505,8 @@ def _to_camel(s):
 
 # ══════════════════════════════════════════════ interpreter
 class Interpreter:
+    _MODULE_CACHE = {}
+
     def __init__(self, gui_manager=None, source_dir='.'):
         self.global_env  = Environment()
         self.gui         = gui_manager
@@ -446,6 +523,7 @@ class Interpreter:
         self.source_dir  = source_dir
         self._frozen     = set()
         self._output     = []
+        self._servers    = {}
 
         # Built-in constants
         G = self.global_env
@@ -456,7 +534,7 @@ class Interpreter:
         G.set('NAN',     float('nan'))
         G.set('NL',      '\n')
         G.set('TAB',     '\t')
-        G.set('VERSION', '3.0')
+        G.set('VERSION', '4.3')
         G.set('ARGS',    sys.argv[2:])
         G.set('TRUE',    True)
         G.set('FALSE',   False)
@@ -514,14 +592,30 @@ class Interpreter:
             self._notify_watchers(stmt['name'], val, env)
 
         elif t == 'increase':
-            cur = _num(env.get(stmt['name']) or 0)
+            name = stmt['name']
             amt = _num(self.eval_expr(stmt['expr'], env))
-            env.assign(stmt['name'], cur + amt)
+            if '.' in str(name):
+                parts = name.split('.')
+                obj = env.get(parts[0])
+                if isinstance(obj, NegObject):
+                    cur = _num(obj.get(parts[1]) or 0)
+                    obj.set(parts[1], cur + amt)
+                else: env.assign(name, _num(env.get(name) or 0) + amt)
+            else:
+                env.assign(name, _num(env.get(name) or 0) + amt)
 
         elif t == 'decrease':
-            cur = _num(env.get(stmt['name']) or 0)
+            name = stmt['name']
             amt = _num(self.eval_expr(stmt['expr'], env))
-            env.assign(stmt['name'], cur - amt)
+            if '.' in str(name):
+                parts = name.split('.')
+                obj = env.get(parts[0])
+                if isinstance(obj, NegObject):
+                    cur = _num(obj.get(parts[1]) or 0)
+                    obj.set(parts[1], cur - amt)
+                else: env.assign(name, _num(env.get(name) or 0) - amt)
+            else:
+                env.assign(name, _num(env.get(name) or 0) - amt)
 
         elif t == 'compound_assign':
             cur = env.get(stmt['name'])
@@ -540,6 +634,35 @@ class Interpreter:
         elif t == 'freeze':
             env.global_env().freeze(stmt['name'])
             self._frozen.add(stmt['name'])
+
+        elif t == 'dot_assign':
+            # set obj.prop to val  OR  class_instance.field = val
+            parts = stmt['path'].split('.')
+            obj = env.get(parts[0])
+            val = self.eval_expr(stmt['expr'], env)
+            op  = stmt.get('op', '=')
+            if len(parts) == 2:
+                prop = parts[1]
+                if isinstance(obj, NegObject):
+                    if op == '=':
+                        obj.set(prop, val)
+                    else:
+                        cur = obj.get(prop) or 0
+                        obj.set(prop, _arith(op[0], cur, val))
+                elif isinstance(obj, dict):
+                    if op == '=': obj[prop] = val
+                    else: obj[prop] = _arith(op[0], obj.get(prop,0), val)
+                else:
+                    env.assign(parts[0] + '__' + prop, val)
+            elif len(parts) >= 3:
+                # deep: a.b.c = val
+                cur = obj
+                for part in parts[1:-1]:
+                    if isinstance(cur, NegObject): cur = cur.get(part)
+                    elif isinstance(cur, dict): cur = cur.get(part)
+                last = parts[-1]
+                if isinstance(cur, NegObject): cur.set(last, val)
+                elif isinstance(cur, dict): cur[last] = val
 
         elif t == 'index_assign':
             c = env.get(stmt['name'])
@@ -601,10 +724,12 @@ class Interpreter:
 
         elif t == 'for_each':
             lst = self.eval_expr(stmt['list'], env)
-            it  = lst.keys() if isinstance(lst, dict) else (lst if isinstance(lst,(list,str)) else [])
-            for item in it:
+            it  = list(lst.keys()) if isinstance(lst, dict) else (list(lst) if isinstance(lst,(list,str)) else [])
+            idx_var = stmt.get('idx_var')
+            for idx, item in enumerate(it):
                 local = Environment(env)
                 local.set(stmt['var'], item)
+                if idx_var: local.set(idx_var, idx)
                 try:    self.exec_block(stmt['body'], local)
                 except BreakSignal:    break
                 except ContinueSignal: continue
@@ -629,6 +754,30 @@ class Interpreter:
                 except BreakSignal:  break
                 except ContinueSignal: continue
 
+        elif t == 'match':
+            val = self.eval_expr(stmt['expr'], env)
+            fired = False
+            for case in stmt['cases']:
+                cv = case['value']
+                # wildcard _ matches everything
+                if cv.get('type') == 'wildcard':
+                    if case.get('guard'):
+                        if not self.eval_truthy(case['guard'], env): continue
+                    self.exec_block(case['body'], Environment(env))
+                    fired = True; break
+                # tuple/range: [lo, hi]
+                case_val = self.eval_expr(cv, env)
+                if val == case_val:
+                    if case.get('guard'):
+                        local = Environment(env)
+                        local.set('it', val)
+                        if not self.eval_truthy(case['guard'], local): continue
+                    self.exec_block(case['body'], Environment(env))
+                    fired = True; break
+                # type-based matching: is_number, is_string, etc.
+            if not fired and stmt.get('default'):
+                self.exec_block(stmt['default'], Environment(env))
+
         elif t == 'switch':
             val = self.eval_expr(stmt['expr'], env)
             fired = False
@@ -645,19 +794,29 @@ class Interpreter:
 
         # ── functions ─────────────────────────────────────────────────
         elif t == 'define':
-            fn = NegFunction(stmt['name'], stmt['params'], stmt['body'], env)
+            defaults_raw = stmt.get('defaults', {})
+            defaults_evaled = {k: self.eval_expr(v, env) for k, v in defaults_raw.items()}
+            fn = NegFunction(stmt['name'], stmt['params'], stmt['body'], env, defaults=defaults_evaled)
             env.assign(stmt['name'], fn)
 
         elif t == 'async_define':
-            fn = NegFunction(stmt['name'], stmt['params'], stmt['body'], env, is_async=True)
+            defaults_raw = stmt.get('defaults', {})
+            defaults_evaled = {k: self.eval_expr(v, env) for k, v in defaults_raw.items()}
+            fn = NegFunction(stmt['name'], stmt['params'], stmt['body'], env, is_async=True, defaults=defaults_evaled)
             env.assign(stmt['name'], fn)
 
         elif t == 'memo_define':
-            fn = NegFunction(stmt['name'], stmt['params'], stmt['body'], env, is_memo=True)
+            defaults_raw = stmt.get('defaults', {})
+            defaults_evaled = {k: self.eval_expr(v, env) for k, v in defaults_raw.items()}
+            fn = NegFunction(stmt['name'], stmt['params'], stmt['body'], env, is_memo=True, defaults=defaults_evaled)
             env.assign(stmt['name'], fn)
 
         elif t == 'call':
             self._call_fn(stmt['name'], stmt['args'], env, line)
+
+        elif t == 'call_store':
+            result = self._call_fn(stmt['name'], stmt['args'], env, line)
+            env.assign(stmt['var'], result)
 
         elif t == 'return':
             val = self.eval_expr(stmt['expr'], env) if stmt.get('expr') else None
@@ -855,69 +1014,53 @@ class Interpreter:
             env.assign(stmt['name'], cls)
 
         elif t == 'new_obj':
-            cls = env.get(stmt['class']) or self._classes.get(stmt['class'])
-            if not isinstance(cls, NegClass):
-                raise NegRuntimeError(f"'{stmt['class']}' is not a class", line)
-            obj = NegObject(stmt['class'])
-            obj_env = Environment(cls.closure)
-            obj_env.set('self', obj)
-            # inherit parent
-            if cls.parent:
-                pcls = self._classes.get(cls.parent)
-                if pcls:
-                    p_env = Environment(pcls.closure)
-                    p_env.set('self', obj)
-                    self.exec_block(pcls.body, p_env)
-                    for k, v in p_env.vars.items():
-                        if k != 'self': obj.props[k] = v
-            self.exec_block(cls.body, obj_env)
-            for k, v in obj_env.vars.items():
-                if k != 'self': obj.props[k] = v
+            cls_name = stmt['class']
             args = [self.eval_expr(a, env) for a in stmt['args']]
-            init = obj.props.get('init') or obj.props.get('new') or obj.props.get('__init__')
-            if isinstance(init, NegFunction):
-                local = Environment(init.closure)
-                local.set('self', obj)
-                for p, v in zip(init.params, args): local.set(p, v)
-                try: self.exec_block(init.body, local)
-                except ReturnSignal: pass
-            target = stmt.get('result') or stmt['class'].lower()
+            obj = self._instantiate(cls_name, args, env, line)
+            target = stmt.get('result') or cls_name.lower()
             env.assign(target, obj)
 
         # ── lists ─────────────────────────────────────────────────────
         elif t == 'create_list':
-            env.assign(stmt['name'], [self.eval_expr(i, env) for i in stmt['items']])
+            items_val = [self.eval_expr(i, env) for i in stmt['items']]
+            name = stmt['name']
+            if '.' in str(name):
+                parts = name.split('.')
+                obj = env.get(parts[0])
+                if isinstance(obj, NegObject): obj.set(parts[1], items_val)
+                elif isinstance(obj, dict): obj[parts[1]] = items_val
+                else: env.assign(name, items_val)
+            else:
+                env.assign(name, items_val)
 
         elif t == 'list_add':
-            lst = env.get(stmt['list'])
-            if not isinstance(lst, list): raise NegRuntimeError(f"'{stmt['list']}' is not a list", line)
+            lst = self._resolve_list(stmt['list'], env, line)
             lst.append(self.eval_expr(stmt['value'], env))
 
         elif t == 'list_remove':
-            lst = env.get(stmt['list'])
+            lst = self._resolve_list(stmt['list'], env, line)
             val = self.eval_expr(stmt['value'], env)
-            if isinstance(lst, list) and val in lst: lst.remove(val)
+            if val in lst: lst.remove(val)
 
         elif t == 'list_insert':
-            lst = env.get(stmt['list'])
+            lst = self._resolve_list(stmt['list'], env, line)
             val = self.eval_expr(stmt['value'], env)
             idx = int(_num(self.eval_expr(stmt['index'], env))) - 1
-            if isinstance(lst, list): lst.insert(idx, val)
+            lst.insert(idx, val)
 
         elif t == 'list_pop':
-            lst = env.get(stmt['list'])
-            if isinstance(lst, list) and lst:
+            lst = self._resolve_list(stmt['list'], env, line)
+            if lst:
                 val = lst.pop()
                 if stmt.get('var'): env.assign(stmt['var'], val)
 
         elif t == 'list_sort':
-            lst = env.get(stmt['list'])
-            if isinstance(lst, list):
-                lst.sort(key=lambda x: (_num(x) if isinstance(_num(x),(int,float)) else 0, str(x)))
+            lst = self._resolve_list(stmt['list'], env, line)
+            lst.sort(key=lambda x: (_num(x) if isinstance(_num(x),(int,float)) else 0, str(x)))
 
         elif t == 'list_shuffle':
-            lst = env.get(stmt['list'])
-            if isinstance(lst, list): random.shuffle(lst)
+            lst = self._resolve_list(stmt['list'], env, line)
+            random.shuffle(lst)
 
         # ── dicts ─────────────────────────────────────────────────────
         elif t == 'create_dict':
@@ -1008,6 +1151,14 @@ class Interpreter:
 
         elif t == 'fetch_url':
             self._do_fetch(stmt, env, line)
+        elif t == 'host_static':
+            self._do_host_static(stmt, env, line)
+        elif t == 'stop_server':
+            self._do_stop_server(stmt, env, line)
+        elif t == 'open_webview':
+            self._do_open_webview(stmt, env, line)
+        elif t == 'fusion':
+            self._do_fusion(stmt, env, line)
 
         # ── events ─────────────────────────────────────────────────────
         elif t == 'emit':
@@ -1074,6 +1225,185 @@ class Interpreter:
         elif t == 'gui_hide':
             if self.gui: self.gui.hide_widget(stmt['name'])
 
+        elif t == 'create_image':
+            opts = {k: self.eval_expr(v, env) for k, v in stmt.get('opts',{}).items()}
+            if self.gui: self.gui.create_image(stmt['name'], stmt['window'], opts)
+
+        elif t == 'create_chart':
+            opts = {k: self.eval_expr(v, env) for k, v in stmt.get('opts',{}).items()}
+            if self.gui: self.gui.create_chart(stmt['name'], stmt['window'], opts)
+
+        elif t == 'create_frame':
+            opts = {k: self.eval_expr(v, env) for k, v in stmt.get('opts',{}).items()}
+            if self.gui: self.gui.create_frame(stmt['name'], stmt['window'], opts)
+
+        elif t == 'create_tab_group':
+            opts = {k: self.eval_expr(v, env) for k, v in stmt.get('opts',{}).items()}
+            if self.gui: self.gui.create_tab_group(stmt['name'], stmt['window'], opts)
+
+        elif t == 'create_tab':
+            opts = {k: self.eval_expr(v, env) for k, v in stmt.get('opts',{}).items()}
+            if self.gui: self.gui.create_tab(stmt['name'], stmt['window'], opts)
+
+        elif t == 'gui_toast':
+            msg = str(self.eval_expr(stmt['expr'], env))
+            if self.gui: self.gui.show_toast(msg)
+            else:        self._print(f"[TOAST] {msg}")
+
+        elif t == 'gui_dialog':
+            msg = str(self.eval_expr(stmt['expr'], env))
+            result = self.gui.show_dialog(msg) if self.gui else input(f"[DIALOG] {msg}: ")
+            env.assign(stmt['var'], result)
+
+        elif t == 'bind_key':
+            if self.gui:
+                body, interp, cap_env = stmt['body'], self, env
+                def handler(e=None, b=body, en=cap_env):
+                    try: interp.exec_block(b, Environment(en))
+                    except Exception as ex: interp._print(colorize('red', f"[Key Error] {ex}"))
+                self.gui.bind_key(stmt['key'], stmt['window'], handler)
+
+        elif t == 'play_sound':
+            file = str(self.eval_expr(stmt['file'], env))
+            if self.gui: self.gui.play_sound(file)
+            else:        self._print(f"[SOUND] Playing: {file}")
+
+
+        # ── v4.1 GUI additions ────────────────────────────────────────
+        elif t == 'create_textarea':
+            opts = {k: self.eval_expr(v, env) for k, v in stmt.get('opts',{}).items()}
+            if self.gui: self.gui.create_textarea(stmt['name'], stmt['window'], opts)
+            else:        self._print(f"[GUI] Textarea '{stmt['name']}'")
+
+        elif t == 'create_checkbox':
+            opts = {k: self.eval_expr(v, env) for k, v in stmt.get('opts',{}).items()}
+            if self.gui: self.gui.create_checkbox(stmt['name'], stmt['window'],
+                                                   stmt.get('label'), opts)
+            else:        self._print(f"[GUI] Checkbox '{stmt['name']}'")
+
+        elif t == 'create_dropdown':
+            raw_opts = [self.eval_expr(o, env) for o in stmt.get('options', [])]
+            opts     = {k: self.eval_expr(v, env) for k, v in stmt.get('opts',{}).items()}
+            if self.gui: self.gui.create_dropdown(stmt['name'], stmt['window'], raw_opts, opts)
+            else:        self._print(f"[GUI] Dropdown '{stmt['name']}'")
+
+        elif t == 'create_table':
+            cols = [self.eval_expr(c, env) for c in stmt.get('columns', [])]
+            opts = {k: self.eval_expr(v, env) for k, v in stmt.get('opts',{}).items()}
+            if self.gui: self.gui.create_table(stmt['name'], stmt['window'], cols, opts)
+            else:        self._print(f"[GUI] Table '{stmt['name']}'")
+
+        elif t == 'table_add_row':
+            vals = [self.eval_expr(v, env) for v in stmt.get('values', [])]
+            if self.gui: self.gui.table_add_row(stmt['name'], vals)
+
+        elif t == 'table_clear':
+            if self.gui: self.gui.table_clear(stmt['name'])
+
+        elif t == 'create_canvas':
+            w = int(_num(self.eval_expr(stmt['width'],  env)))
+            h = int(_num(self.eval_expr(stmt['height'], env)))
+            opts = {k: self.eval_expr(v, env) for k, v in stmt.get('opts',{}).items()}
+            if self.gui: self.gui.create_canvas(stmt['name'], stmt['window'], w, h, opts)
+
+        elif t == 'canvas_draw_rect':
+            coords = [_num(self.eval_expr(stmt[k], env)) for k in ('x1','y1','x2','y2')]
+            opts   = {k: self.eval_expr(v, env) for k, v in stmt.get('opts',{}).items()}
+            if self.gui: self.gui.canvas_draw_rect(stmt['name'], *coords, opts)
+
+        elif t == 'canvas_draw_oval':
+            coords = [_num(self.eval_expr(stmt[k], env)) for k in ('x1','y1','x2','y2')]
+            opts   = {k: self.eval_expr(v, env) for k, v in stmt.get('opts',{}).items()}
+            if self.gui: self.gui.canvas_draw_oval(stmt['name'], *coords, opts)
+
+        elif t == 'canvas_draw_line':
+            coords = [_num(self.eval_expr(stmt[k], env)) for k in ('x1','y1','x2','y2')]
+            opts   = {k: self.eval_expr(v, env) for k, v in stmt.get('opts',{}).items()}
+            if self.gui: self.gui.canvas_draw_line(stmt['name'], *coords, opts)
+
+        elif t == 'canvas_draw_text':
+            x    = _num(self.eval_expr(stmt['x'], env))
+            y    = _num(self.eval_expr(stmt['y'], env))
+            text = str(self.eval_expr(stmt['text'], env))
+            opts = {k: self.eval_expr(v, env) for k, v in stmt.get('opts',{}).items()}
+            if self.gui: self.gui.canvas_draw_text(stmt['name'], x, y, text, opts)
+
+        elif t == 'canvas_clear':
+            if self.gui: self.gui.canvas_clear(stmt['name'])
+
+        elif t == 'create_tab':
+            if self.gui: self.gui.create_tab(stmt['name'], stmt['window'])
+
+        elif t == 'add_tab':
+            if self.gui: self.gui.add_tab(stmt['notebook'], stmt['title'])
+
+        elif t == 'gui_toast':
+            msg  = str(self.eval_expr(stmt['expr'], env))
+            dur  = int(self.eval_expr(stmt['duration'], env)) if stmt.get('duration') else 3000
+            col  = str(self.eval_expr(stmt['color'], env)) if stmt.get('color') else None
+            if self.gui: self.gui.toast(msg, dur, col or '#3fb950')
+            else:        self._print(f"[TOAST] {msg}")
+
+        elif t == 'set_statusbar':
+            text = str(self.eval_expr(stmt['text'], env))
+            if self.gui: self.gui.set_statusbar(stmt['window'], text)
+
+        elif t == 'close_window':
+            if self.gui: self.gui.close_window(stmt.get('name',''))
+
+        elif t == 'enable_button':
+            enabled = bool(_truthy(self.eval_expr(stmt['value'], env))) if stmt.get('value') else True
+            if self.gui: self.gui.enable_button(stmt['label'], enabled)
+
+        elif t == 'set_label_color':
+            col = str(self.eval_expr(stmt['color'], env))
+            if self.gui: self.gui.set_label_color(stmt['name'], col)
+
+        elif t == 'gui_ask_file':
+            mode = stmt.get('mode', 'open')
+            if self.gui:
+                path = self.gui.ask_file(mode)
+            else:
+                path = input(f"[FILE {mode.upper()}] Enter path: ")
+            if stmt.get('var'): env.assign(stmt['var'], path)
+
+        elif t == 'gui_ask_color':
+            if self.gui:
+                col = self.gui.ask_color()
+            else:
+                col = input("[COLOR] Enter hex: ")
+            if stmt.get('var'): env.assign(stmt['var'], col)
+
+        elif t == 'get_textarea':
+            val = self.gui.get_textarea_value(stmt['name']) if self.gui else ''
+            env.assign(stmt['var'], val)
+
+        elif t == 'set_textarea':
+            text = str(self.eval_expr(stmt['text'], env))
+            if self.gui: self.gui.set_textarea_value(stmt['name'], text)
+
+        elif t == 'append_textarea':
+            text = str(self.eval_expr(stmt['text'], env))
+            if self.gui: self.gui.append_textarea(stmt['name'], text)
+
+        elif t == 'get_checkbox':
+            val = self.gui.get_checkbox_value(stmt['name']) if self.gui else False
+            env.assign(stmt['var'], val)
+
+        elif t == 'get_dropdown':
+            val = self.gui.get_dropdown_value(stmt['name']) if self.gui else ''
+            env.assign(stmt['var'], val)
+
+        # ── v4.1 Networking ──────────────────────────────────────────
+        elif t == 'http_request':
+            self._do_http_request(stmt, env, line)
+
+        elif t == 'fetch_json':
+            self._do_json_api(stmt, env, line)
+
+        elif t == 'fetch_url':
+            self._do_fetch(stmt, env, line)
+
         else:
             pass  # unrecognised
 
@@ -1081,13 +1411,57 @@ class Interpreter:
     def eval_expr(self, node, env):
         t = node['type']
 
-        if t == 'string':   return node['value']
+        if t == 'string':
+            val = node['value']
+            # ${...} interpolation — evaluate embedded expressions
+            if '${' in val:
+                import re as _re
+                def _interp(m):
+                    expr_src = m.group(1)
+                    try:
+                        from lexer  import Lexer as _Lexer
+                        from parser import Parser as _Parser
+                        p = _Parser(_Lexer(expr_src).tokenize())
+                        expr_ast = p._parse_expr()
+                        result = self.eval_expr(expr_ast, env)
+                        return '' if result is None else str(result)
+                    except Exception:
+                        return m.group(0)
+                val = _re.sub(r'\$\{([^}]+)\}', _interp, val)
+            return val
         if t == 'number':   return node['value']
         if t == 'bool':     return node['value']
         if t == 'null':     return None
+
+        if t == 'lambda_expr':
+            lam = NegLambda(node['params'], node['body'], env)
+            return lam
+
+        if t == 'wildcard': return None
+
+        if t == 'between_check':
+            left = self.eval_expr(node['left'], env)
+            lo   = self.eval_expr(node['lo'],   env)
+            hi   = self.eval_expr(node['hi'],   env)
+            result = _num(lo) <= _num(left) <= _num(hi)
+            return (not result) if node.get('negate') else result
+
+        if t == 'approx_check':
+            left  = self.eval_expr(node['left'],  env)
+            right = self.eval_expr(node['right'], env)
+            nl, nr = _num(left), _num(right)
+            thresh = max(abs(nr) * 0.05, 0.01)
+            result = abs(nl - nr) <= thresh
+            return (not result) if node.get('negate') else result
+
+        if t == 'new_expr':
+            cls_name = node['class']
+            args = [self.eval_expr(a, env) for a in node['args']]
+            return self._instantiate(cls_name, args, env, node.get('line',0))
+
         if t == 'var':
             v = env.get(node['name'])
-            return v
+            return v  # NegLambda instances are returned as-is
 
         if t == 'list_literal':
             return [self.eval_expr(i, env) for i in node['items']]
@@ -1111,12 +1485,11 @@ class Interpreter:
         if t == 'attr_access':
             obj  = self.eval_expr(node['obj'], env)
             attr = node['attr']
-            if isinstance(obj, dict):      return obj.get(attr)
+            if obj is None: return None
             if isinstance(obj, NegObject): return obj.get(attr)
             if isinstance(obj, NegModule): return obj.get(attr)
+            if isinstance(obj, dict): return obj.get(attr)
             if isinstance(obj, NegFunction): return None
-            # also handle nested attr_access chains
-            if obj is None: return None
             return getattr(obj, attr, None)
 
         if t == 'index_access':
@@ -1147,6 +1520,25 @@ class Interpreter:
                 return _truthy(self.eval_expr(node['left'],env)) and _truthy(self.eval_expr(node['right'],env))
             if node['op'] == 'or':
                 return _truthy(self.eval_expr(node['left'],env)) or  _truthy(self.eval_expr(node['right'],env))
+
+        if t == 'null_coalesce':
+            left = self.eval_expr(node['left'], env)
+            return left if left is not None else self.eval_expr(node['right'], env)
+
+        if t == 'pipe_expr':
+            # value |> funcName  →  call funcName with value as first arg
+            val  = self.eval_expr(node['value'], env)
+            func_node = node['func']
+            fname = func_node.get('name') or func_node.get('value')
+            fn = env.get(fname) or self._builtins.get(fname)
+            if callable(fn):  return fn(val)
+            if isinstance(fn, NegFunction):
+                local = Environment(fn.closure)
+                if fn.params: local.set(fn.params[0], val)
+                try: self.exec_block(fn.body, local)
+                except ReturnSignal as r: return r.value
+                return None
+            raise NegRuntimeError(f"Pipe target '{fname}' is not callable", node.get('line',0))
 
         if t == 'builtin_call': return self._call_builtin(node, env)
 
@@ -1190,98 +1582,8 @@ class Interpreter:
         return None
 
     def _call_fn(self, name, arg_nodes, env, line=0, inject_first=None):
-        # resolve dotted names: module.fn  or  obj.method
-        if '.' in str(name):
-            parts = name.split('.')
-            obj = env.get(parts[0]) or self.global_env.get(parts[0])
-            for part in parts[1:-1]:
-                if isinstance(obj, NegObject):   obj = obj.get(part)
-                elif isinstance(obj, NegModule):  obj = obj.get(part)
-                elif isinstance(obj, dict):       obj = obj.get(part)
-                else: obj = None
-            member_name = parts[-1]
-            if isinstance(obj, NegObject):
-                fn = obj.get(member_name)
-                if isinstance(fn, NegFunction):
-                    args  = ([inject_first] if inject_first is not None else []) + [self.eval_expr(a, env) for a in arg_nodes]
-                    local = Environment(fn.closure)
-                    local.set('self', obj)
-                    for p, v in zip(fn.params, args): local.set(p, v)
-                    try: self.exec_block(fn.body, local)
-                    except ReturnSignal as r: return r.value
-                    return None
-            elif isinstance(obj, NegModule):
-                fn = obj.get(member_name)
-            elif isinstance(obj, dict):
-                fn = obj.get(member_name)
-            else:
-                fn = None
-            if fn is None:
-                raise NegRuntimeError(f"Cannot call '{name}': not found", line)
-            if isinstance(fn, NegFunction):
-                args  = ([inject_first] if inject_first is not None else []) + [self.eval_expr(a, env) for a in arg_nodes]
-                local = Environment(fn.closure)
-                for p, v in zip(fn.params, args): local.set(p, v)
-                try: self.exec_block(fn.body, local)
-                except ReturnSignal as r: return r.value
-                return None
-            if callable(fn):
-                args = [self.eval_expr(a, env) for a in arg_nodes]
-                return fn(*args)
-            raise NegRuntimeError(f"'{name}' is not callable", line)
+        return self._call_fn_v4(name, arg_nodes, env, line, inject_first)
 
-        fn = env.get(name)
-        if fn is None:
-            # check global env
-            fn = self.global_env.get(name)
-        if fn is None:
-            raise NegRuntimeError(f"Undefined: '{name}'", line)
-
-        if isinstance(fn, NegFunction):
-            args = ([inject_first] if inject_first is not None else []) + \
-                   [self.eval_expr(a, env) for a in arg_nodes]
-            # memoization
-            if fn._cache is not None:
-                cache_key = tuple(str(a) for a in args)
-                if cache_key in fn._cache:
-                    return fn._cache[cache_key]
-
-            local = Environment(fn.closure)
-            local.set('self', env.get('self'))  # pass self through
-            for p, v in zip(fn.params, args): local.set(p, v)
-
-            result = None
-            try:
-                self.exec_block(fn.body, local)
-            except ReturnSignal as r:
-                result = r.value
-
-            if fn._cache is not None:
-                cache_key = tuple(str(a) for a in args)
-                fn._cache[cache_key] = result
-            return result
-
-        if isinstance(fn, NegClass):
-            # calling a class creates an object
-            obj = NegObject(fn.name)
-            obj_env = Environment(fn.closure)
-            obj_env.set('self', obj)
-            self.exec_block(fn.body, obj_env)
-            for k, v in obj_env.vars.items():
-                if k != 'self': obj.props[k] = v
-            return obj
-
-        if isinstance(fn, NegObject):
-            # calling an object tries to call its 'call' method
-            m = fn.props.get('call') or fn.props.get('__call__')
-            if isinstance(m, NegFunction):
-                return self._call_fn_obj(m, arg_nodes, env, line, fn)
-
-        if callable(fn):
-            args = [self.eval_expr(a, env) for a in arg_nodes]
-            return fn(*args)
-
-        raise NegRuntimeError(f"'{name}' is not callable", line)
 
     def _call_fn_obj(self, fn, arg_nodes, env, line, obj):
         args  = [self.eval_expr(a, env) for a in arg_nodes]
@@ -1309,13 +1611,35 @@ class Interpreter:
 
     # ─────────────────────────────── import (native Neglish modules)
     def _do_import(self, module_name, alias, env):
-        # 1. Try local .neg file
-        search_paths = [
-            os.path.join(self.source_dir, module_name + '.neg'),
-            os.path.join(self.source_dir, 'stdlib', module_name + '.neg'),
-            os.path.join(os.path.dirname(__file__), 'stdlib', module_name + '.neg'),
-            module_name + '.neg',
-        ]
+        cache_key = os.path.normcase(str(module_name))
+        if cache_key in Interpreter._MODULE_CACHE:
+            env.assign(alias, Interpreter._MODULE_CACHE[cache_key])
+            return
+
+        mod_str = str(module_name)
+        is_path = ('/' in mod_str or '\\' in mod_str or mod_str.endswith('.neg'))
+
+        # Determine the base directory of the interpreter source (handles frozen .exe too)
+        if getattr(sys, 'frozen', False):
+            _interp_dir = sys._MEIPASS
+        else:
+            _interp_dir = os.path.dirname(os.path.abspath(__file__))
+
+        if is_path:
+            # Path-based: resolve relative to the currently-running file's directory
+            candidate = mod_str if os.path.isabs(mod_str) else os.path.join(self.source_dir, mod_str)
+            if not candidate.endswith('.neg'):
+                candidate += '.neg'
+            search_paths = [candidate]
+        else:
+            # Name-based: search local dir, then stdlib
+            search_paths = [
+                os.path.join(self.source_dir, mod_str + '.neg'),
+                os.path.join(self.source_dir, 'stdlib', mod_str + '.neg'),
+                os.path.join(_interp_dir, 'stdlib', mod_str + '.neg'),
+                mod_str + '.neg',
+            ]
+
         for neg_path in search_paths:
             if os.path.exists(neg_path):
                 from lexer   import Lexer
@@ -1324,18 +1648,25 @@ class Interpreter:
                     source = f.read()
                 tokens  = Lexer(source).tokenize()
                 ast     = Parser(tokens).parse()
-                sub     = Interpreter(source_dir=os.path.dirname(neg_path) or '.')
+                sub     = Interpreter(source_dir=os.path.dirname(os.path.abspath(neg_path)))
                 sub.run(ast)
                 exports = sub._exports or list(sub.global_env.vars.keys())
-                module  = NegModule(module_name, sub.global_env, exports)
+                module  = NegModule(mod_str, sub.global_env, exports)
                 env.assign(alias, module)
+                Interpreter._MODULE_CACHE[cache_key] = module
                 return
 
-        # 2. Silently skip (no Python fallback - fully independent)
-        self._print(colorize('yellow', f"[Warning] Module '{module_name}' not found"))
+        self._print(colorize('yellow', f"[Warning] Module '{mod_str}' not found"))
 
     def _do_fetch(self, stmt, env, line):
         url = str(self.eval_expr(stmt['url'], env))
+        if not self._is_network_allowed(url):
+            data = "[FETCH ERROR] blocked by whitelist policy"
+            if stmt.get('var'):
+                env.assign(stmt['var'], data)
+            else:
+                self._print(data)
+            return
         try:
             import urllib.request, urllib.error
             req = urllib.request.Request(url)
@@ -1346,6 +1677,265 @@ class Interpreter:
         if stmt.get('var'): env.assign(stmt['var'], data)
         else: self._print(data)
 
+    def _is_network_allowed(self, url):
+        whitelist = os.environ.get("NEGLISH_ALLOWED_DOMAINS", "").strip()
+        if not whitelist:
+            return True
+        host = (urlparse(url).hostname or "").lower()
+        if not host:
+            return False
+        allowed = [d.strip().lower() for d in whitelist.split(",") if d.strip()]
+        return any(host == d or host.endswith("." + d) for d in allowed)
+
+    def _do_host_static(self, stmt, env, line):
+        folder = str(self.eval_expr(stmt['folder'], env))
+        port = int(_num(self.eval_expr(stmt['port'], env)))
+        name = stmt.get('name') or f"server_{port}"
+        abs_folder = os.path.abspath(folder)
+        if not os.path.isdir(abs_folder):
+            raise NegRuntimeError(f"Host folder not found: {abs_folder}", line)
+
+        class _StaticHandler(SimpleHTTPRequestHandler):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, directory=abs_folder, **kwargs)
+            def log_message(self, format, *args):
+                return
+
+        server = ThreadingHTTPServer(("127.0.0.1", port), _StaticHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        self._servers[name] = {"server": server, "thread": thread, "port": port, "folder": abs_folder}
+        url = f"http://127.0.0.1:{port}/"
+        env.assign(name, url)
+        self._print(colorize('green', f"[HOST] {name} serving {abs_folder} at {url}"))
+
+    def _do_stop_server(self, stmt, env, line):
+        name = stmt['name']
+        rec = self._servers.get(name)
+        if not rec:
+            self._print(colorize('yellow', f"[HOST] server '{name}' not found"))
+            return
+        rec["server"].shutdown()
+        rec["server"].server_close()
+        self._servers.pop(name, None)
+        self._print(colorize('green', f"[HOST] server '{name}' stopped"))
+
+    def _do_open_webview(self, stmt, env, line):
+        url = str(self.eval_expr(stmt['url'], env))
+        if self.gui:
+            self.gui.create_html_view(url, window_title=stmt.get('window'))
+        else:
+            import webbrowser
+            webbrowser.open(url)
+
+    def _do_fusion(self, stmt, env, line):
+        folder = str(self.eval_expr(stmt['folder'], env))
+        name = stmt['name']
+        
+        # Determine port
+        port_node = stmt.get('port')
+        port = int(_num(self.eval_expr(port_node, env))) if port_node else 0
+        
+        if port == 0:
+            import socket
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.bind(('', 0))
+            port = sock.getsockname()[1]
+            sock.close()
+
+        # 1. Host the folder
+        host_stmt = {
+            'folder': stmt['folder'],
+            'port': {'type':'number', 'value': port},
+            'name': name
+        }
+        self._do_host_static(host_stmt, env, line)
+        
+        # 2. Open Webview
+        url = f"http://127.0.0.1:{port}/"
+        view_stmt = {
+            'url': {'type':'string', 'value': url},
+            'window': name
+        }
+        self._do_open_webview(view_stmt, env, line)
+        
+        self._print(colorize('cyan', f"[FUSION] App '{name}' fused from '{folder}' at {url}"))
+
     def print_test_summary(self):
         if self._test.passed + self._test.failed > 0:
             self._test.summary()
+
+    # ─────────────────────────────── OOP instantiation
+    def _instantiate(self, cls_name, args, env, line=0):
+        """Create an instance of a Neglish class."""
+        cls = env.get(cls_name) or self._classes.get(cls_name)
+        if not isinstance(cls, NegClass):
+            raise NegRuntimeError(f"'{cls_name}' is not a class", line)
+
+        obj = NegObject(cls_name)
+        obj_env = Environment(cls.closure)
+        obj_env.set('self', obj)
+
+        # ── inherit parent first
+        if cls.parent:
+            pcls = self._classes.get(cls.parent) or (env.get(cls.parent) if hasattr(env,'get') else None)
+            if isinstance(pcls, NegClass):
+                p_env = Environment(pcls.closure)
+                p_env.set('self', obj)
+                self.exec_block(pcls.body, p_env)
+                for k, v in p_env.vars.items():
+                    if k != 'self': obj.props[k] = v
+
+        # ── run class body (defines methods/properties onto obj)
+        self.exec_block(cls.body, obj_env)
+        for k, v in obj_env.vars.items():
+            if k != 'self': obj.props[k] = v
+
+        # ── call constructor if defined
+        for ctor_name in ('init','constructor','new','__init__'):
+            ctor = obj.props.get(ctor_name)
+            if isinstance(ctor, NegFunction):
+                local = Environment(ctor.closure)
+                local.set('self', obj)
+                for p, v in zip(ctor.params, args): local.set(p, v)
+                try: self.exec_block(ctor.body, local)
+                except ReturnSignal: pass
+                # sync any props set via 'self' in constructor
+                for k, v in local.vars.items():
+                    if k != 'self': obj.props[k] = v
+                break
+
+        return obj
+
+    # ─────────────────────────────── enhanced _call_fn (lambdas + OOP methods)
+    def _call_fn_v4(self, name, arg_nodes, env, line=0, inject_first=None):
+        """v4 call: resolves lambdas, OOP methods, dotted names."""
+        # ── dotted name resolution: obj.method  or  module.fn
+        if '.' in str(name):
+            parts = name.split('.')
+            obj = env.get(parts[0]) or self.global_env.get(parts[0])
+            for part in parts[1:-1]:
+                if isinstance(obj, NegObject): obj = obj.get(part)
+                elif isinstance(obj, NegModule): obj = obj.get(part)
+                elif isinstance(obj, dict): obj = obj.get(part)
+                else: obj = None
+            member_name = parts[-1]
+            fn = None
+            if isinstance(obj, NegObject):
+                fn = obj.get(member_name)
+                if isinstance(fn, NegFunction):
+                    args = ([inject_first] if inject_first is not None else []) + \
+                           [self.eval_expr(a, env) for a in arg_nodes]
+                    local = Environment(fn.closure)
+                    local.set('self', obj)
+                    for p, v in zip(fn.params, args): local.set(p, v)
+                    try: self.exec_block(fn.body, local)
+                    except ReturnSignal as r: return r.value
+                    # sync self props
+                    for k, v in local.vars.items():
+                        if k != 'self': obj.props[k] = v
+                    return None
+                if isinstance(fn, NegLambda):
+                    args = ([inject_first] if inject_first is not None else []) + \
+                           [self.eval_expr(a, env) for a in arg_nodes]
+                    return self._call_lambda(fn, args, env)
+            elif isinstance(obj, NegModule):
+                fn = obj.get(member_name)
+            elif isinstance(obj, dict): fn = obj.get(member_name)
+
+            if fn is None: raise NegRuntimeError(f"'{name}' not found", line)
+            if isinstance(fn, NegFunction):
+                args = [self.eval_expr(a, env) for a in arg_nodes]
+                local = Environment(fn.closure)
+                for i, p in enumerate(fn.params):
+                    if i < len(args):
+                        local.set(p, args[i])
+                    elif p in fn.defaults:
+                        local.set(p, fn.defaults[p])
+                    else:
+                        local.set(p, None)
+                try: self.exec_block(fn.body, local)
+                except ReturnSignal as r: return r.value
+                return None
+            if isinstance(fn, NegLambda):
+                args = [self.eval_expr(a, env) for a in arg_nodes]
+                return self._call_lambda(fn, args, env)
+            if callable(fn):
+                args = [self.eval_expr(a, env) for a in arg_nodes]
+                return fn(*args)
+            raise NegRuntimeError(f"'{name}' is not callable", line)
+
+        # ── plain name resolution
+        fn = env.get(name) or self.global_env.get(name)
+        if fn is None: raise NegRuntimeError(f"Undefined: '{name}'", line)
+
+        if isinstance(fn, NegLambda):
+            args = ([inject_first] if inject_first is not None else []) + \
+                   [self.eval_expr(a, env) for a in arg_nodes]
+            return self._call_lambda(fn, args, env)
+
+        if isinstance(fn, NegFunction):
+            args = ([inject_first] if inject_first is not None else []) + \
+                   [self.eval_expr(a, env) for a in arg_nodes]
+            if fn._cache is not None:
+                cache_key = tuple(str(a) for a in args)
+                if cache_key in fn._cache: return fn._cache[cache_key]
+            local = Environment(fn.closure)
+            local.set('self', env.get('self'))
+            for i, p in enumerate(fn.params):
+                if i < len(args):
+                    local.set(p, args[i])
+                elif p in fn.defaults:
+                    local.set(p, fn.defaults[p])
+                else:
+                    local.set(p, None)
+            result = None
+            try: self.exec_block(fn.body, local)
+            except ReturnSignal as r: result = r.value
+            if fn._cache is not None:
+                fn._cache[tuple(str(a) for a in args)] = result
+            return result
+
+        if isinstance(fn, NegClass):
+            args = [self.eval_expr(a, env) for a in arg_nodes]
+            return self._instantiate(fn.name, args, env, line)
+
+        if callable(fn):
+            args = [self.eval_expr(a, env) for a in arg_nodes]
+            return fn(*args)
+
+        raise NegRuntimeError(f"'{name}' is not callable", line)
+
+    def _call_lambda(self, lam, args, env):
+        """Execute a NegLambda — evaluates its single body expression."""
+        local = Environment(lam.closure)
+        for p, v in zip(lam.params, args): local.set(p, v)
+        return self.eval_expr(lam.body_expr, local)
+
+    def _eval_attr(self, obj, attr):
+        """Evaluate attribute access on an object."""
+        if isinstance(obj, NegObject): return obj.get(attr)
+        if isinstance(obj, NegModule): return obj.get(attr)
+        if isinstance(obj, dict): return obj.get(attr)
+        return getattr(obj, attr, None)
+
+
+    def _resolve_list(self, name, env, line=0):
+        """Resolve a list by name, supporting dotted paths like self.tricks."""
+        if '.' in str(name):
+            parts = name.split('.')
+            obj = env.get(parts[0])
+            if isinstance(obj, NegObject):
+                lst = obj.get(parts[1])
+                if not isinstance(lst, list):
+                    raise NegRuntimeError(f"'{name}' is not a list", line)
+                return lst
+            elif isinstance(obj, dict):
+                lst = obj.get(parts[1])
+                if not isinstance(lst, list):
+                    raise NegRuntimeError(f"'{name}' is not a list", line)
+                return lst
+        lst = env.get(name)
+        if not isinstance(lst, list):
+            raise NegRuntimeError(f"'{name}' is not a list", line)
+        return lst
