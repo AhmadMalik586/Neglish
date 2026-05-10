@@ -1,18 +1,18 @@
 <div align="center">
 
 ```
-                                    ███╗   ██╗███████╗ ██████╗ ██╗     ██╗███████╗██╗  ██╗
-                                    ████╗  ██║██╔════╝██╔════╝ ██║     ██║██╔════╝██║  ██║
-                                    ██╔██╗ ██║█████╗  ██║  ███╗██║     ██║███████╗███████║
-                                    ██║╚██╗██║██╔══╝  ██║   ██║██║     ██║╚════██║██╔══██║
-                                    ██║ ╚████║███████╗╚██████╔╝███████╗██║███████║██║  ██║
-                                    ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚══════╝╚═╝╚══════╝╚═╝  ╚═╝
+  ███╗   ██╗███████╗ ██████╗ ██╗     ██╗███████╗██╗  ██╗
+  ████╗  ██║██╔════╝██╔════╝ ██║     ██║██╔════╝██║  ██║
+  ██╔██╗ ██║█████╗  ██║  ███╗██║     ██║███████╗███████║
+  ██║╚██╗██║██╔══╝  ██║   ██║██║     ██║╚════██║██╔══██║
+  ██║ ╚████║███████╗╚██████╔╝███████╗██║███████║██║  ██║
+  ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚══════╝╚═╝╚══════╝╚═╝  ╚═╝
 ```
 
-**Neglish v3** — A natural English-like programming language  
+**Neglish v4.2** — A natural English-like programming language  
 *Write code the way you speak. No symbols. No cryptic syntax. Just English.*
 
-`Python 3.8+` · `No dependencies` · `Built-in GUI` · `Native modules`
+`Python 3.8+` · `Zero dependencies` · `Built-in GUI` · `Native networking` · `Own module system` · `PATH installable`
 
 </div>
 
@@ -21,7 +21,7 @@
 ## Table of Contents
 
 1. [What is Neglish?](#what-is-neglish)
-2. [What Can You Build With It?](#what-can-you-build-with-it)
+2. [What's New in v4.2](#whats-new-in-v42)
 3. [Getting Started](#getting-started)
 4. [Language Tour](#language-tour)
    - [Output](#output)
@@ -29,135 +29,184 @@
    - [Conditions](#conditions)
    - [Loops](#loops)
    - [Functions](#functions)
+   - [Classes & OOP](#classes--oop)
    - [Lists](#lists)
    - [Dictionaries](#dictionaries)
    - [String Operations](#string-operations)
    - [Math Operations](#math-operations)
    - [Error Handling](#error-handling)
-   - [File Input & Output](#file-input--output)
+   - [File I/O](#file-io)
    - [JSON](#json)
    - [User Input](#user-input)
-   - [Events](#events)
+   - [Pattern Matching](#pattern-matching)
    - [Data Pipelines](#data-pipelines)
    - [Async & Timers](#async--timers)
-   - [Watchers (Reactive Variables)](#watchers-reactive-variables)
-   - [Benchmarking](#benchmarking)
+   - [Events](#events)
+   - [Watchers](#watchers)
    - [Testing Framework](#testing-framework)
-   - [Modules (Native Neglish)](#modules-native-neglish)
+   - [Benchmarking](#benchmarking)
+   - [Modules](#modules)
    - [Frozen Constants](#frozen-constants)
-   - [Memoised Functions](#memoised-functions)
-   - [Closures](#closures)
+   - [Closures & Lambdas](#closures--lambdas)
    - [Type System](#type-system)
-   - [GUI Programming](#gui-programming)
-   - [System & OS](#system--os)
-   - [Colored Terminal Output](#colored-terminal-output)
-   - [Debugging](#debugging)
-5. [Built-in Function Reference](#built-in-function-reference)
-6. [Standard Library Modules](#standard-library-modules)
-7. [Full Example Programs](#full-example-programs)
-8. [CLI Reference](#cli-reference)
-9. [VS Code Extension](#vs-code-extension)
-10. [Language Design Philosophy](#language-design-philosophy)
-11. [Limitations & Roadmap](#limitations--roadmap)
+5. [GUI Programming](#gui-programming)
+   - [Windows](#windows)
+   - [Buttons](#buttons)
+   - [Labels](#labels)
+   - [Text Entries](#text-entries)
+   - [Textareas](#textareas)
+   - [Checkboxes](#checkboxes)
+   - [Dropdowns](#dropdowns)
+   - [Progress Bars](#progress-bars)
+   - [Tables](#tables)
+   - [Canvas Drawing](#canvas-drawing)
+   - [Tabs](#tabs)
+   - [Dialogs](#dialogs)
+   - [Toast Notifications](#toast-notifications)
+   - [Status Bar](#status-bar)
+   - [Themes](#themes)
+6. [Networking](#networking)
+   - [HTTP GET](#http-get)
+   - [HTTP POST / PUT / DELETE](#http-post--put--delete)
+   - [Fetch JSON APIs](#fetch-json-apis)
+   - [File Download](#file-download)
+   - [URL Utilities](#url-utilities)
+7. [System & OS](#system--os)
+8. [Colored Terminal Output](#colored-terminal-output)
+9. [Debugging](#debugging)
+10. [Built-in Function Reference](#built-in-function-reference)
+11. [Standard Library Modules](#standard-library-modules)
+12. [Full Example Programs](#full-example-programs)
+13. [CLI Reference](#cli-reference)
+14. [VS Code Extension](#vs-code-extension)
+15. [Language Design Philosophy](#language-design-philosophy)
+16. [Known Limitations](#known-limitations)
 
 ---
 
 ## What is Neglish?
 
-Neglish is a **general-purpose programming language** with English-like syntax. Instead of writing:
+Neglish is a **general-purpose programming language** with English-like syntax. You write code the way you'd describe a task in plain English — no semicolons, no brackets, no boilerplate.
 
+Instead of:
 ```python
-# Python
 for i in range(1, 11):
     if i % 2 == 0:
         print(f"Even: {i}")
 ```
 
 You write:
-
 ```
-# Neglish
 for i from 1 to 10
-    if i is equal to i / 2 * 2 then
+    if i mod 2 is equal to 0 then
         show "Even: " + i
     end
 end
 ```
 
-Neglish compiles and runs entirely through a Python interpreter — but the code you write never touches Python. It is its own language with:
+Neglish is **fully independent**. The Python runtime is just the engine — like how a car runs on an engine you never think about. The code you write never touches Python:
 
 - **Its own syntax** — structured English sentences, not symbols
 - **Its own standard library** — written in Neglish itself (`math.neg`, `strings.neg`, `collections.neg`, `io.neg`)
-- **Its own module system** — `import math as m` loads a `.neg` file, not a Python module
-- **Its own GUI framework** — create windows, buttons, labels, and entries in plain English
+- **Its own module system** — `import math as m` loads a `.neg` file
+- **Its own GUI framework** — create modern dark-themed windows in plain English
+- **Its own networking layer** — HTTP requests, JSON APIs, file downloads
 - **Its own test runner** — `describe`, `test`, `expect`, `check`
-- **157 built-in functions** — math, strings, lists, files, time, system, JSON, regex, and more
-
-The Python runtime is just the **engine under the hood** — like how a car runs on an engine you never think about.
+- **170+ built-in functions** — math, strings, lists, files, time, system, JSON, regex, networking
 
 ---
 
-## What Can You Build With It?
+## What's New in v4.2
 
-Neglish is designed for a wide range of real applications:
-
-| Use Case | Example |
+| Feature | Details |
 |---|---|
-| **Teaching programming** | The English syntax makes logic visible to beginners |
-| **Rapid prototyping** | Write apps quickly without memorizing syntax |
-| **CLI tools & scripts** | Read files, process data, automate tasks |
-| **Data processing** | Filter, map, reduce, group lists with pipeline syntax |
-| **Desktop GUI apps** | Windows, buttons, forms, progress bars — all in plain English |
-| **Configuration scripts** | Human-readable scripts that non-developers can edit |
-| **Game logic** | State machines, scoring, conditionals in readable form |
-| **Testing utilities** | Built-in `describe`/`expect` test framework |
-| **Personal automation** | File management, JSON manipulation, system info |
-| **Educational projects** | Any project where code needs to be read and understood by humans |
+| **Install to PATH** | `neglish --install` adds `neglish.exe` to your user PATH — run Neglish from any terminal or directory |
+| **Path-based imports** | `use "libs/utils.neg"` or `use "C:/project/helpers.neg"` — import by relative or absolute path |
+| **String interpolation** | `"Hello ${name}, you are ${age} years old!"` — embed any expression inside `${}` |
+| **Default parameters** | `define greet with name = "World"` — parameters can have fallback values |
+| **Null coalescing `??`** | `x ?? "default"` — returns left side if not null, otherwise right |
+| **Pipe operator `\|>`** | `value \|> funcName` — pass a value into a function as its first argument |
+| **Indexed for-each** | `for each item, idx in list` — loop with both value and zero-based index |
+| **`stdlib` bundled in exe** | `neglish.spec` packs the stdlib inside the built exe so it works from any directory |
+| **`install.bat` / `uninstall.bat`** | One-click PATH setup and removal scripts included |
+| **Tabs & Tab Groups** | `create tab_group` and `create tab` for multi-page GUIs |
+| **Native Charts** | `create chart` to instantly render bar charts |
+| **Image Rendering** | `create image` natively loads and scales pictures in GUI |
+| **Key Bindings** | `bind_key "Return" in window` for hotkey triggers |
+| **Toast notifications** | Animated fade-in/out toasts with custom color and duration |
+| **Canvas drawing** | Draw rectangles, ovals, lines, text on a canvas widget |
+| **Safer networking** | Domain whitelist via `NEGLISH_ALLOWED_DOMAINS` env var |
+| **JSON API fetching** | `fetch json from url` → parsed dict directly |
+| **Permissive parser** | Missing glue keywords (`then`, `do`, `to`) are inferred by default |
+| **AST/module cache** | Faster re-run and import with source-hash cache |
 
 ---
 
 ## Getting Started
 
-### Requirements
+### Option A — Standalone EXE (recommended, Windows)
 
-- Python 3.8 or higher
-- No pip installs needed — Neglish uses only Python's standard library
-- Tkinter (for GUI programs) — already included with Python on Windows and macOS
+Build once and run `.neg` files from **anywhere** on your system:
 
-```bash
-# Linux only — install tkinter if needed
-sudo apt-get install python3-tk
+```bat
+:: 1. Build the exe (requires Python + PyInstaller)
+build_neglish_runtime.bat
+
+:: 2. Install to PATH (adds neglish.exe to %LOCALAPPDATA%\Neglish)
+install.bat
+::    or build + install in one step:
+build_neglish_runtime.bat --install
+
+:: 3. Now run any .neg file from any directory, any terminal
+neglish hello.neg
+neglish --repl
+neglish --version
 ```
 
-### Running a Program
-
-```bash
-python main.py hello.neg             # run a file
-python main.py hello.neg --nogui     # force console-only mode (no GUI)
-python main.py --repl                # interactive REPL shell
-python main.py --check hello.neg     # syntax check only (no execution)
-python main.py --version             # print version info
+To remove from PATH later:
+```bat
+uninstall.bat
 ```
 
-### Your First Program
+### Option B — Run from source (Python required)
 
-Save this as `hello.neg`:
+**Requirements:** Python 3.8 or newer. No pip installs needed.
 
+```bash
+# Run a program
+python main.py hello.neg
+
+# Interactive REPL
+python main.py --repl
+
+# Strict parser mode (no syntax inference)
+python main.py hello.neg --strict
+```
+
+### Full-stack HTML/CSS/JS with Neglish backend
+
+```text
+host "webroot" on port 8080 as app
+create window "Neglish Web App" width 1200 height 800
+webview "http://127.0.0.1:8080/index.html" in window "Neglish Web App"
+```
+
+Stop hosted server:
+
+```text
+stop_server app
+```
+
+**Your first program** — create `hello.neg`:
 ```
 show "Hello, World!"
-
-set name to "Ahmad"
-show "Welcome, " + name + "!"
-
-repeat 3 times
-    show "Neglish is great!"
-end
+set name to "Alice"
+show "Hello, " + name + "!"
 ```
 
 Run it:
-
 ```bash
-python main.py hello.neg --nogui
+python main.py hello.neg
 ```
 
 ---
@@ -167,1468 +216,1710 @@ python main.py hello.neg --nogui
 ### Output
 
 ```
-show "Hello, World!"
-say  "Same as show"
-print "Also the same"
-log  "Also works"
+show "Hello!"
+say "Hello!"       # synonym
+print "Hello!"     # synonym
+log "Hello!"       # synonym
 
-# Show multiple values at once (separated by space)
-show "Name:", name, "Score:", score
+# With variables
+set x to 42
+show "The answer is " + x
 
-# Colored output in the terminal
-colored red    "This is red"
-colored green  "This is green"
-colored yellow "Warning message"
-colored blue   "Info message"
-colored cyan   "Cyan text"
-colored magenta "Purple text"
+# Template-style (string concatenation)
+set name to "Bob"
+show "Hi " + name + ", you are " + age + " years old"
+
+# Colored output
+show colored "green" "Success!"
+show colored "red" "Error!"
+show colored "cyan" "Info"
 ```
-
----
 
 ### Variables
 
 ```
-# Set a variable
-set name  to "Ahmad"
-set score to 100
-set pi    to 3.14159
-set flag  to true
-set empty to null
+set x to 10
+let y to 20          # 'let' is a synonym for 'set'
+set name to "Alice"
+set items to list 1 2 3
 
-# Modify a variable
-increase score by 10
-decrease score by 5
+# Augmented assignment
+increase x by 5      # x = x + 5
+decrease y by 3      # y = y - 3
 
-# Compound assignment
-score += 20
-score -= 5
-score *= 2
-score /= 4
+# Constants (cannot be changed after creation)
+const PI to 3.14159
+const MAX_SIZE to 100
 
-# Constants (cannot be changed after freeze)
-set MAX_LIVES to 3
-freeze MAX_LIVES
-
-# Built-in constants (always available)
-show PI      # 3.14159265358979
-show E       # 2.71828182845905
-show TAU     # 6.28318530717959
-show INF     # infinity
-show VERSION # "3.0"
-show ARGS    # command-line arguments list
-show NL      # newline character
-show TAB     # tab character
+# Global variables (accessible inside functions)
+global count to 0
 ```
-
----
 
 ### Conditions
 
 ```
-if score is greater than 90 then
-    show "Grade: A"
-elseif score is greater than 80 then
-    show "Grade: B"
-elseif score is greater than 70 then
-    show "Grade: C"
-else
-    show "Grade: F"
+if x is greater than 10 then
+    show "big"
 end
 
-# All comparison forms
-if x is equal to y then ... end
-if x is not equal to y then ... end
-if x is greater than y then ... end
-if x is less than y then ... end
-if x is greater than y then ... end   # also works: >  <  >=  <=  ==  !=
+if x > 5 then
+    show "more than five"
+elseif x is equal to 5 then
+    show "exactly five"
+else
+    show "less than five"
+end
 
-# Logic operators
-if logged_in and not banned then ... end
-if a or b then ... end
-if not is_empty then ... end
+# 'unless' is 'if not'
+unless x is 0 then
+    show "x is non-zero"
+end
 
-# Null / empty checks
-if value is equal to null then ... end
-if items is empty then ... end
+# Compound conditions
+if x > 0 and y > 0 then
+    show "both positive"
+end
 
-# String checks
-if email contains "@" then ... end
-if name starts with "A" then ... end
-if filename ends with ".neg" then ... end
-
-# Switch / match
-switch day
-    case "Monday" then
-        show "Start of week"
-    case "Friday" then
-        show "TGIF!"
-    default then
-        show "Midweek"
+if x is null or y is null then
+    show "one is missing"
 end
 ```
-
----
 
 ### Loops
 
 ```
-# Repeat N times
+# Counted loop
 repeat 5 times
-    show "Hello!"
+    show "hello"
 end
 
-# Repeat with index variable
-repeat 10 times as i
-    show "Step " + i
-end
-
-# While loop
-set n to 1
-while n is less than 100
-    increase n by n
-end
-
-# For range (inclusive)
+# For range
 for i from 1 to 10
     show i
 end
 
 # For range with step
-for i from 0 to 100 step 5
+for i from 0 to 100 step 10
     show i
 end
 
-# For each (iterate a list)
-create list fruits with "apple", "banana", "cherry"
-for each fruit in fruits
-    show fruit
+# For each item in list
+set colors to list "red" "green" "blue"
+for each color in colors
+    show color
 end
 
-# Infinite loop (use break to exit)
+# While loop
+set n to 1
+while n is less than or equal to 10
+    show n
+    increase n by 1
+end
+
+# Until loop (runs while condition is false)
+set count to 0
+repeat until count is equal to 5
+    increase count by 1
+end
+
+# Infinite loop with break
 loop
-    ask "Command:" and store in cmd
-    if cmd is equal to "quit" then
+    set input to ask "Enter 'quit' to stop"
+    if input is equal to "quit" then
         break
     end
 end
 
-# Break and continue
-for i from 1 to 10
-    if i is equal to 5 then
+# break and continue work in all loops
+for i from 1 to 20
+    if i mod 2 is equal to 0 then
         continue
     end
-    if i is equal to 8 then
+    if i is greater than 15 then
         break
     end
     show i
 end
 ```
-
----
 
 ### Functions
 
 ```
 # Define a function
-define function greet with name
+define greet with name
     show "Hello, " + name + "!"
 end
 
 # Call it
-call greet with "Ahmad"
+call greet with "Alice"
 
 # Function with return value
-define function add with a, b
+define add with a and b
     return a + b
 end
 
-set result to call add with 10, 20
-show result
+set result to call add with 3 and 4
+show result    # 7
 
-# Multiple parameters
-define function describe with name, age, city
-    show name + " is " + age + " years old, from " + city
+# Default-style optional logic
+define describe with animal
+    if animal is equal to "cat" then
+        return "furry and quiet"
+    end
+    return "some animal"
 end
-
-call describe with "Ahmad", 25, "Lahore"
 
 # Recursive function
-define function factorial with n
-    if n is less than 2 then
+define factorial with n
+    if n is less than or equal to 1 then
         return 1
     end
-    set prev to call factorial with n - 1
-    return n * prev
+    return n * call factorial with n - 1
 end
 
-show call factorial with 10
-
-# Functions are first-class values
-define function double with x
-    return x * 2
-end
-set fn to double
-show call fn with 5
+show call factorial with 10    # 3628800
 ```
 
----
+### Classes & OOP
+
+```
+class Animal
+    has name
+    has sound
+
+    define speak
+        show self.name + " says " + self.sound
+    end
+end
+
+class Dog inherit Animal
+    has tricks
+
+    constructor with name
+        set self.name to name
+        set self.sound to "Woof"
+        set self.tricks to list
+    end
+
+    define learn with trick
+        add trick to self.tricks
+    end
+
+    define show_tricks
+        for each t in self.tricks
+            show self.name + " can " + t
+        end
+    end
+end
+
+set rex to new Dog with "Rex"
+call rex.speak
+call rex.learn with "sit"
+call rex.learn with "shake"
+call rex.show_tricks
+
+# Check type
+if rex instanceof Dog then
+    show "Rex is a dog"
+end
+```
 
 ### Lists
 
 ```
-# Create a list
-create list scores with 88, 92, 75, 67, 95
+set fruits to list "apple" "banana" "cherry"
 
-# Add / remove items
-add 100 to scores
-remove 67 from scores
-insert 50 at 1 in scores
-pop from scores store in last_item
+# Add / remove
+add "date" to fruits
+remove "banana" from fruits
+insert "avocado" at 0 in fruits
 
-# Access items (1-indexed)
-show item 1 of scores
-show first of scores
-show last of scores
+# Access
+set first to first of fruits
+set last  to last of fruits
+set third to fruits at 2       # zero-indexed
 
-# List info
-show length of scores
-show sum of scores
-show average of scores
-
-# Sort and shuffle
-sort scores
-shuffle scores
+# Length
+set n to length of fruits
+set n to count of fruits       # synonym
 
 # Search
-if scores contains 95 then
-    show "Found 95!"
+if fruits contains "apple" then
+    show "found it"
 end
-show index of 95 in scores
 
-# Slice (1-indexed, inclusive)
-set top3 to slice of scores from 1 to 3
+set idx to index of "cherry" in fruits
 
-# Get unique values
-set uniq to unique of scores
+# Slicing
+set sub to slice fruits from 1 to 3
 
-# Remove falsy values (null, false, 0, "")
-set clean to compact of mixed_list
+# Sorting
+sort fruits
+sort fruits descending          # sort_desc
+
+# Functional operations
+set nums to list 1 2 3 4 5 6
+set evens   to filter nums where each x is x mod 2 equal to 0
+set doubled to map nums using each x to x * 2
+set total   to reduce nums using each acc x to acc + x
+
+# Other operations
+set u to unique of fruits
+set r to reverse of fruits
+set f to flatten of nested_list
 
 # List math
-show max_of of scores
-show min_of of scores
-show median of scores
+set s to sum of nums
+set avg to average of nums
+set mx  to max of nums
+set mn  to min of nums
+set med to median of nums
 
-# Iterate
-for each score in scores
-    show score
-end
-
-# List literals
-set matrix_row to [10, 20, 30, 40, 50]
-show item 3 of matrix_row
+# Combine
+set a to list 1 2 3
+set b to list 4 5 6
+set c to union of a and b
+set i to intersection of a and b
+set d to difference of a and b
 ```
-
----
 
 ### Dictionaries
 
 ```
-# Create a map/dictionary
-create map person with "name" as "Ahmad", "age" as 25, "city" as "Lahore"
+set person to dict
+    set person.name to "Alice"
+    set person.age  to 30
+    set person.city to "London"
 
-# Access a value
-show key "name" of person
+# Access
+show person.name
+show person at "age"
 
-# Set a value
-set key "country" of person to "Pakistan"
-
-# Get all keys / values
-show join keys of person with ", "
-show join values of person with ", "
-
-# Check if key exists
-if dict_has of person and "name" then
-    show "Name exists"
+# Check key
+if dict_has person "email" then
+    show "has email"
 end
 
-# Empty map
-create map empty_map with
+# Keys / values
+set ks to keys of person
+set vs to values of person
 
-# Merge two maps
-create map defaults with "theme" as "dark", "lang" as "en"
-create map user_prefs with "lang" as "ar"
-set merged to dict_merge of defaults and user_prefs
+# Size
+set n to dict_size of person
+
+# Merge two dicts
+set merged to dict_merge of a and b
+
+# Convert to list of pairs
+set pairs to dict_to_list of person
+
+# Delete a key
+remove "city" from person
 ```
-
----
 
 ### String Operations
 
 ```
-set text to "  Hello, Neglish World!  "
+set s to "Hello, World!"
 
-# Case
-show uppercase of text
-show lowercase of text
-show titlecase of text
-show camelcase of "hello world"    # → helloWorld
-show snakecase of "helloWorld"     # → hello_world
+show uppercase s          # "HELLO, WORLD!"
+show lowercase s          # "hello, world!"
+show titlecase s          # "Hello, World!"
+show trim "  hello  "     # "hello"
+show length of s
 
-# Whitespace
-show trim of text
-show trim_left of text
-show trim_right of text
-
-# Info
-show length of text
-
-# Search and check
-if text contains "Neglish" then ... end
-if text starts with "Hello" then ... end
-if text ends with "!" then ... end
-
-# Extract
-show substring of text from 3 to 7
-show char_at of text and 1
-
-# Modify
-show replace in text find "World" with "Universe"
-set words to split text by " "
+# Split / join
+set words to split s by " "
 set joined to join words with "-"
-show reverse of "Neglish"
 
-# Repeat
-show repeat_str of "ha" and 3    # → hahaha
+# Replace
+set s2 to replace "World" with "Neglish" in s
 
-# Pad
-show pad_left  of "42" and 6 and "0"   # → 000042
-show pad_right of "hi" and 10 and "."  # → hi........
+# Substring
+set sub to substring s from 0 to 5    # "Hello"
 
-# Format
-set msg to format_str of "Hello, {}! You are {} years old." and name and age
-
-# Count
-show count_of of "hello" and "l"   # → 2
+# Check
+if s starts with "Hello" then  show "greeting"  end
+if s ends with "!"       then  show "exclamation"  end
+if s contains "World"    then  show "found"  end
 
 # Regex
-if matches of email and "[^@]+@[^@]+\.[^@]+" then
-    show "Valid email"
-end
-set all_nums to find_all of text and "[0-9]+"
+if s matches "[A-Z][a-z]+" then  show "has capitalized word"  end
+set all to find_all "[A-Z][a-z]+" in s
+set replaced to replace_regex "[0-9]+" with "NUM" in s
 
-# Convert
-show number_format of 1234567.89 and 2   # → 1,234,567.89
-show pluralize of "cat" and 3             # → cats
-show pluralize of "cat" and 1             # → cat
+# Other
+show char_at s at 0           # "H"
+set code to char_code "A"     # 65
+set ch   to from_code 65      # "A"
+show pad_left "5" with "0" to 3     # "005"
+show pad_right "hi" with "." to 10  # "hi........"
+show count_of "l" in s        # 3
+show camelcase "hello world"  # "helloWorld"
+show snakecase "Hello World"  # "hello_world"
+show number_format 1234567    # "1,234,567"
+show pluralize "apple" count 3   # "apples"
 ```
-
----
 
 ### Math Operations
 
 ```
-# Arithmetic
-set x to 10 + 5
-set y to x * 3 - 2
-set z to 100 / 4
-set r to 17 mod 5       # modulo: r = 2
-
-# Math builtins (use "of" syntax)
-show sqrt of 144         # → 12.0
-show abs of -42          # → 42
-show floor of 3.9        # → 3
-show ceil  of 3.1        # → 4
-show round of 3.567      # → 4
-
-# Power and roots
-show power of 2 and 10   # → 1024
-
-# Min / max
-show max of 55 and 99    # → 99
-show min of 55 and 99    # → 55
-
-# Random
-set dice to random between 1 and 6
-set f    to random_float of 0 and 1    # decimal between 0.0 and 1.0
-
-# Trigonometry (input in degrees)
-show sin of 90     # → 1.0
-show cos of 0      # → 1.0
-show tan of 45     # → ~1.0
-
-# Logarithms
-show log10 of 1000   # → 3.0
-show log2  of 8      # → 3.0
-
-# Number theory
-show gcd of 48 and 18     # → 6
-show lcm of 4  and 6      # → 12
-show is_prime of 97       # → True
-show is_even of 4         # → True
-show is_odd  of 7         # → True
-show factorial of 10      # → 3628800
-show fibonacci of 10      # → 55
-
-# Interpolation / clamping
-show clamp of 150 and 0 and 100    # → 100 (clamp between 0–100)
-show lerp  of 0.5 and 0 and 100    # → 50.0 (linear interpolation)
-show sign  of -42                  # → -1
-
-# Constants
-show PI    # 3.14159265358979
-show E     # 2.71828182845905
-show TAU   # 6.28318530717959
+show sqrt 16          # 4
+show abs -7           # 7
+show floor 3.9        # 3
+show ceil  3.1        # 4
+show round 3.567 to 2 # 3.57
+show power 2 to 10    # 1024
+show mod 17 by 5      # 2
+show log10 1000       # 3
+show log2  8          # 3
+show sin 0            # 0
+show cos 0            # 1
+show pi               # 3.141592653589793
+show random from 1 to 100
+show max 3 and 7      # 7
+show min 3 and 7      # 3
+show clamp 15 between 0 and 10    # 10
+show lerp 0.5 from 0 to 100       # 50
+show gcd 12 and 8     # 4
+show lcm 4 and 6      # 12
+show is_prime 17      # true
+show is_even 8        # true
+show factorial 6      # 720
+show fibonacci 10     # 55
+set deg to degrees pi           # 180.0
+set rad to radians 180          # 3.14159...
 ```
-
----
 
 ### Error Handling
 
 ```
-# Try / catch
 try
     set result to 10 / 0
     show result
-catch error as e
-    show "Caught: " + e
+catch error
+    show "Caught: " + error
 end
 
-# Throw your own errors
+# Throw your own error
 try
-    throw "File not found!"
-catch error as err
-    show "Error: " + err
+    if age < 0 then
+        throw "Age cannot be negative"
+    end
+catch e
+    show "Error: " + e
 end
 
 # Assert (throws if condition is false)
-assert score is greater than 0 otherwise "Score must be positive"
-
-# Nested try
-try
-    try
-        throw "Inner"
-    catch error as e1
-        show "Inner caught: " + e1
-        throw "Outer"
-    end
-catch error as e2
-    show "Outer caught: " + e2
-end
+assert x > 0 else "x must be positive"
 ```
 
----
-
-### File Input & Output
+### File I/O
 
 ```
-# Write a file
-open "output.txt" as f for write
-write "Line 1" to f
-write "Line 2" to f
-close f
+# Write
+write "Hello, file!" to "output.txt"
+append "More content\n" to "output.txt"
 
-# Read a file
-open "output.txt" as f for read
-read f and store in content
-close f
+# Read
+set content to read file "output.txt"
 show content
 
-# Append to a file
-open "log.txt" as f for append
-write "New entry" to f
-close f
+# Convenience wrappers
+write_file "data.txt" "some data"
+set data to read_file "data.txt"
 
-# Delete a file
+# File system
+if file_exists "output.txt" then
+    show "exists"
+end
+
+show file_size "output.txt"
+show file_ext  "output.txt"    # ".txt"
+show file_name "path/to/foo.txt"  # "foo.txt"
+show file_dir  "path/to/foo.txt"  # "path/to"
+set files to list_dir "."
+set full to path_join "dir" "file.txt"
+
+# Delete
 delete file "temp.txt"
-
-# Shorthand (builtin functions)
-set data to read_file of "notes.txt"
-write_file "output.txt" "Hello from Neglish"
-append_file "log.txt" "Log entry"
-
-# File info
-show file_exists of "main.neg"    # → True
-show file_size   of "main.neg"    # → bytes
-show file_ext    of "main.neg"    # → .neg
-show file_name   of "path/to/main.neg"  # → main.neg
-show file_dir    of "path/to/main.neg"  # → path/to
-show list_dir    of "."           # → list of filenames
-show is_file     of "main.neg"    # → True
-show is_dir      of "stdlib"      # → True
 ```
-
----
 
 ### JSON
 
 ```
-# Save a variable to JSON
-create map config with "version" as "3.0", "debug" as true, "maxUsers" as 100
-save config to "config.json"
+# Parse JSON string → dict/list
+set data to json_parse '{"name":"Alice","age":30}'
+show data.name
 
-# Load JSON into a variable
-load "config.json" in loaded
-show key "version" of loaded
+# Stringify dict → JSON string
+set json_str to json_stringify data
+show json_str
 
-# Builtin JSON functions
-set json_str to json_stringify of config      # compact JSON string
-set pretty   to json_pretty    of config      # indented JSON string
-set parsed   to json_parse     of json_str    # parse JSON string back to dict
+# Pretty print
+show json_pretty data
+
+# Save/load JSON files directly
+save data to "person.json"
+set loaded to load from "person.json"
 ```
-
----
 
 ### User Input
 
 ```
-# Ask for input (stored automatically — strings auto-convert to numbers)
-ask "Enter your name:"   and store in name
-ask "Enter your age:"    and store in age
-ask "Enter a number:"    and store in num
+# Console input
+set name to ask "What is your name?"
+set age  to ask "How old are you?"
 
-show "Hello, " + name + "! You are " + age + " years old."
-show "Double your number: " + num * 2
+# GUI input dialog (when inside a GUI program)
+set answer to ask "Enter your name:"
+
+# Store input in variable
+ask "Enter value:" store result
 ```
 
----
-
-### Events
-
-Events let different parts of your program communicate without being directly connected.
+### Pattern Matching
 
 ```
-# Register a listener
-on score_changed
-    show "Score is now: " + event_data
-end
+set day to "Monday"
 
-# Register multiple listeners for the same event
-on score_changed
-    if event_data is greater than 100 then
-        colored green "High score achieved!"
+match day
+    when "Monday" then
+        show "Start of work week"
+    end
+    when "Friday" then
+        show "End of work week"
+    end
+    when "Saturday" or "Sunday" then
+        show "Weekend!"
+    end
+    default
+        show "Midweek"
     end
 end
 
-# Emit an event with data
-emit score_changed with 150
-
-# Events fire all registered listeners in order
-on user_action
-    show "Action: " + event_data
+# Match with number ranges
+match score
+    when score >= 90 then  show "A"  end
+    when score >= 80 then  show "B"  end
+    when score >= 70 then  show "C"  end
+    default              show "F"  end
 end
-
-emit user_action with "login"
-emit user_action with "purchase"
 ```
-
----
 
 ### Data Pipelines
 
-Process lists with clean, readable pipeline syntax.
-
 ```
-create list scores with 88, 45, 92, 67, 78, 95, 33, 81
+set nums to list 1 2 3 4 5 6 7 8 9 10
 
-# FILTER — keep items matching a condition
-filter scores where score is greater than 75 as high_scores
-show join high_scores with ", "   # → 88, 92, 78, 95, 81
+# filter → map → reduce pipeline
+set result to nums
+    pipe filter using each n to n mod 2 equal to 0
+    pipe map using each n to n * n
+    pipe reduce using each acc n to acc + n
 
-# MAP — transform every item
-map_fn scores with score as score * 2 store in doubled
-show item 1 of doubled            # → 176
+show result    # 220
 
-# COLLECT — like filter with a name for the loop variable
-collect s from scores where s is less than 50 as low_scores
-show join low_scores with ", "    # → 45, 33
+# Grouping
+set people to list
+add dict name "Alice" dept "Eng"  to people
+add dict name "Bob"   dept "HR"   to people
+add dict name "Carol" dept "Eng"  to people
 
-# REDUCE — accumulate a result
-reduce scores with 0 using s as acc + s store in total
-show total                        # → 579
+set by_dept to group_by people by "dept"
 
-# PIPE — chain function calls
-define function double with x
-    return x * 2
-end
-define function add_ten with x
-    return x + 10
-end
-pipe 5 through double, add_ten store in result
-show result   # → 20
+# Ordering
+set sorted to order_by people by "name"
+
+# Take / drop
+set first3 to take 3 from nums
+set rest   to drop 3 from nums
+
+# Chunk
+set batches to chunk nums by 3    # [[1,2,3],[4,5,6],[7,8,9],[10]]
+
+# Zip
+set pairs to zip_pairs list 1 2 3 and list "a" "b" "c"
+# [[1,"a"],[2,"b"],[3,"c"]]
 ```
-
----
 
 ### Async & Timers
 
 ```
-# Spawn a background task (runs in a separate thread)
-define function send_email with address
-    sleep 1 seconds
-    show "Email sent to: " + address
-end
-
-spawn send_email with "user@example.com"
-show "Email is being sent in background..."
-
 # Run code after a delay
-after 500 milliseconds
-    show "Half a second has passed!"
+after 2 seconds
+    show "2 seconds passed"
 end
 
-# Run code on a repeating interval
-every 2 seconds
-    show "Tick: " + now of
+# Run code every N seconds
+every 1 second
+    show "tick"
 end
 
-# Sleep (pause execution)
-sleep 1 seconds
-sleep 500 milliseconds
+# Spawn a background thread
+spawn
+    set data to call heavy_computation
+    show "Done: " + data
+end
 
-# Wait for a spawned task
-spawn my_task with args
-set task to last_task
-# task.join() is available if needed
+# Sleep
+sleep 1 second
+wait 500 milliseconds
 ```
 
----
-
-### Watchers (Reactive Variables)
-
-A watcher fires automatically whenever a variable changes value.
+### Events
 
 ```
-set temperature to 20
+# Define an event handler
+on "user_login"
+    show "User logged in: " + event_data
+end
 
-watch temperature
-    show "Temperature changed → " + new_value
-    if new_value is greater than 35 then
-        colored red "ALERT: Overheating!"
+# Emit an event
+emit "user_login" with "Alice"
+
+# Multiple handlers on same event
+on "data_ready"
+    show "Handler 1: " + event_data
+end
+on "data_ready"
+    show "Handler 2: " + event_data
+end
+
+emit "data_ready" with result
+```
+
+### Watchers
+
+```
+set counter to 0
+watch counter
+    show "counter changed to " + counter
+end
+
+# Now any assignment to 'counter' triggers the watch block
+increase counter by 1    # prints "counter changed to 1"
+increase counter by 1    # prints "counter changed to 2"
+```
+
+### Testing Framework
+
+```
+describe "Math functions"
+    test "addition works"
+        expect call add with 2 and 3 to equal 5
+        check call add with 0 and 0 is 0
+    end
+
+    test "string concat"
+        expect "Hello" + " World" to equal "Hello World"
+    end
+
+    test "list operations"
+        set nums to list 1 2 3
+        add 4 to nums
+        expect length of nums to equal 4
+        expect nums at 3 to equal 4
     end
 end
-
-set temperature to 25   # → "Temperature changed → 25"
-set temperature to 40   # → "Temperature changed → 40" + alert
-set temperature to 18   # → "Temperature changed → 18"
 ```
 
----
+Run with: `python main.py tests.neg --test`
 
 ### Benchmarking
 
 ```
-benchmark "Sorting 10,000 items"
-    create list big with
-    repeat 10000 times
-        add random between 1 and 1000 to big
-    end
-    sort big
-end
-# → [BENCHMARK] Sorting 10,000 items: 42.31 ms
-```
-
----
-
-### Testing Framework
-
-Neglish has a built-in test framework — no external library needed.
-
-```
-describe "Calculator Tests"
-    test "addition"
-        expect 2 + 2 should be 4
-        expect 10 + 0 should be 10
-    end
-
-    test "subtraction"
-        set result to 10 - 3
-        expect result should be 7
-    end
-
-    test "is prime"
-        check is_prime of 17
-        check is_prime of 97
-        check not is_prime of 4
-    end
-end
-
-describe "String Tests"
-    test "palindrome detection"
-        expect call str_lib.is_palindrome with "racecar" should be true
-        expect call str_lib.is_palindrome with "hello"   should be false
-    end
-end
-
-# Run with:
-# python main.py tests.neg --nogui
-# → prints PASS/FAIL for each test and a final summary
-```
-
----
-
-### Modules (Native Neglish)
-
-Neglish has its own module system. Modules are `.neg` files — **pure Neglish code, not Python**.
-
-```
-# Import a module
-import math        as m
-import strings     as str_lib
-import collections as col
-import io          as files
-
-# Use module contents
-show m.PI
-set result to call m.square with 7
-set wc     to call str_lib.word_count with "Hello World"
-set nums   to call col.range_list with 1 and 10
-```
-
-#### Writing Your Own Module
-
-Save as `myutils.neg`:
-
-```
-# myutils.neg
-
-export greet
-export add_tax
-
-define function greet with name
-    show "Hello, " + name + "!"
-end
-
-define function add_tax with price
-    return price * 1.15
+benchmark "List sort 10000 items"
+    set nums to range_list 1 to 10000
+    sort nums
 end
 ```
 
-Use it in your program:
+### String Interpolation
+
+Embed any expression directly inside a string using `${}`:
 
 ```
-import myutils as utils
+set name to "Alice"
+set age to 30
+show "Hello ${name}, you are ${age} years old!"
+# → Hello Alice, you are 30 years old!
 
-call utils.greet with "Ahmad"
-set total to call utils.add_tax with 50
-show "Total with tax: " + total
+set items to list 1 2 3
+show "List has ${length items} items"
+
+set x to 10
+show "Double: ${x * 2}, Square: ${x * x}"
 ```
 
-Neglish searches for modules in:
-1. The same folder as your `.neg` file
-2. The `stdlib/` folder next to `main.py`
+### Default Parameter Values
 
-#### Included Standard Library
+Parameters can declare fallback values used when no argument is passed:
 
-| Module | What it provides |
-|---|---|
-| `stdlib/math.neg` | `square`, `cube`, `hypotenuse`, `percent`, `map_range`, `collatz`, `digit_sum` |
-| `stdlib/strings.neg` | `word_count`, `is_palindrome`, `count_vowels`, `truncate`, `slug_from`, `mask`, `repeat_text` |
-| `stdlib/collections.neg` | `range_list`, `zip_lists`, `rotate_left`, `frequency_map`, `count_occurrences`, `group_by_first` |
-| `stdlib/io.neg` | `read_text`, `write_text`, `read_lines`, `write_lines`, `read_json`, `write_json`, `read_csv`, `print_table` |
+```
+define greet with name = "World"
+  show "Hello, ${name}!"
+end
 
----
+call greet              # Hello, World!
+call greet with "Alice" # Hello, Alice!
+
+define power with base, exp = 2
+  return base ** exp
+end
+
+show call power with 3        # 9  (exp defaults to 2)
+show call power with 3, 3     # 27
+```
+
+### Null Coalescing (`??`)
+
+Return the left value if it's not null, otherwise return the right:
+
+```
+set user_name to null
+show user_name ?? "Guest"        # Guest
+
+set score to 0
+show score ?? "no score"         # 0  (0 is not null)
+
+set config to null
+set port to config ?? 8080
+show "Running on port ${port}"   # Running on port 8080
+```
+
+### Pipe Operator (`|>`)
+
+Pass a value into a function as its first argument, chain operations:
+
+```
+set result to "  hello world  " |> trim
+show result        # hello world
+
+set nums to list 1 2 3 4 5
+# Chain: sum the list
+set total to nums |> sum
+show total         # 15
+
+# Chain multiple pipes
+define double with x
+  return x * 2
+end
+
+set val to 5 |> double
+show val           # 10
+```
+
+### Indexed For-Each
+
+Access both the item and its zero-based index in a loop:
+
+```
+set fruits to list "apple" "banana" "cherry"
+for each fruit, idx in fruits
+  show "${idx}: ${fruit}"
+end
+# 0: apple
+# 1: banana
+# 2: cherry
+
+# Works with dicts too (idx = position)
+set scores to dict name: "Alice" score: 95
+for each key, idx in scores
+  show "${idx}. ${key} = ${call scores.get with key}"
+end
+```
+
+### Modules
+
+#### Name-based import (stdlib or local directory)
+```
+use math
+use strings as str
+
+set result to call math.sqrt with 16
+show result
+```
+
+#### Path-based import (any directory)
+```
+# Resolved relative to the currently-running file
+use "libs/utils.neg"
+use "C:/myproject/shared/helpers.neg" as helpers
+use "../common/validators.neg" as val
+
+# Alias is auto-derived from filename; override with 'as'
+use "tools/formatter.neg" as fmt
+call fmt.format_table with data
+```
+
+#### Creating a module
+```
+# libs/utils.neg
+define square with x
+  return x * x
+end
+
+define add with a, b = 0
+  return a + b
+end
+
+export square
+export add
+```
+
+#### Using the module
+```
+use "libs/utils.neg"
+
+show call utils.square with 5     # 25
+show call utils.add with 3        # 3  (b defaults to 0)
+show call utils.add with 3, 4     # 7
+```
+
 
 ### Frozen Constants
 
 ```
-set MAX_CONNECTIONS to 100
-freeze MAX_CONNECTIONS
+const MAX to 100
+const PI  to 3.14159265
 
-# Any attempt to change it throws an error
-set MAX_CONNECTIONS to 200   # → Runtime Error: 'MAX_CONNECTIONS' is frozen
+# Any attempt to reassign raises a runtime error
+set MAX to 200    # ✗ Error: 'MAX' is frozen
 ```
 
----
-
-### Memoised Functions
-
-A memoised function caches its results — calling it again with the same arguments returns instantly from cache.
+### Closures & Lambdas
 
 ```
-memo function fibonacci with n
-    if n is less than 2 then
-        return n
-    end
-    set a to call fibonacci with n - 1
-    set b to call fibonacci with n - 2
-    return a + b
-end
+# Lambda expression
+set double to lambda x to x * 2
+show call double with 5    # 10
 
-# First call computes, subsequent calls use cache
-show call fibonacci with 30   # → 832040 (instant after first call)
-show call fibonacci with 30   # → 832040 (from cache — microseconds)
-```
+# Multi-param lambda
+set add to lambda a b to a + b
+show call add with 3 and 7    # 10
 
----
-
-### Closures
-
-Functions can capture variables from their surrounding scope.
-
-```
-define function make_counter with start
-    set count to start
-    define function increment
+# Closure — function that captures outer scope
+define make_counter
+    set count to 0
+    define increment
         increase count by 1
         return count
     end
     return increment
 end
 
-set counter_a to call make_counter with 0
-set counter_b to call make_counter with 100
+set counter to call make_counter
+show call counter    # 1
+show call counter    # 2
+show call counter    # 3
 
-show call counter_a   # → 1
-show call counter_a   # → 2
-show call counter_b   # → 101
-show call counter_a   # → 3  (independent from counter_b)
+# Memoised function (cached results)
+memo define fib with n
+    if n < 2 then return n end
+    return call fib with n - 1 + call fib with n - 2
+end
 ```
-
----
 
 ### Type System
 
 ```
-# Check types
-show type of 42          # → number
-show type of "hello"     # → string
-show type of true        # → bool
-show type of [1,2,3]     # → list
-show type of null        # → null
+show type "hello"        # "string"
+show type 42             # "number"
+show type list 1 2       # "list"
+show type true           # "bool"
+show type null           # "null"
 
-# Type predicates
-show is_number  of 42       # → True
-show is_string  of "hi"     # → True
-show is_list    of []       # → True
-show is_dict    of {}       # → True
-show is_null    of null     # → True
-show is_bool    of false    # → True
-show is_prime   of 17       # → True
-show is_even    of 4        # → True
-show is_odd     of 7        # → True
+show is_string "hi"      # true
+show is_number 5         # true
+show is_list   items     # true
+show is_dict   data      # true
+show is_null   x         # true/false
+show is_bool   flag      # true/false
 
-# Type conversion
-set n  to number  of "42"       # string → number
-set s  to string  of 3.14       # number → string
-set b  to to_bool of 0          # any    → bool (0 → false)
-set lst to to_list of "hello"   # string → list of chars
+# Conversions
+set n to number "42"     # string → number
+set s to string 42       # number → string
+set b to to_bool 0       # 0 → false
+set l to to_list "abc"   # string → ["a","b","c"]
 ```
 
 ---
 
-### GUI Programming
+## GUI Programming
 
-Neglish automatically detects whether your program uses GUI commands and starts Tkinter only when needed. All program output (show, print, etc.) always goes to the **terminal/command prompt** — there is no embedded console.
+Neglish includes a modern dark-themed GUI framework using tkinter. GUI programs auto-detect when windows are needed — you don't need any special flag.
+
+### Windows
 
 ```
-# Create a window
-create window "My App" with width 800 height 600
-show window
+create window "My App" width 800 height 600
 
-# Add a label
-create label "Welcome to Neglish!" in window "My App" with size 18 bold true color "#58a6ff"
+# With options
+create window "Settings" width 500 height 400
 
-# Add a text input
-create entry username in window "My App"
-create entry password in window "My App"
+# Show/hide
+show window "My App"
+close window "My App"
+```
 
-# Add buttons
-create button "Login"  in window "My App" with color "blue"
-create button "Cancel" in window "My App" with color "gray"
-create button "Delete" in window "My App" with color "red"
+### Buttons
 
-# Handle button clicks
-when button "Login" is clicked
-    show "Login button clicked!"
-    # get entry value and store it
-    get entry username store in typed_name
-    show "Username typed: " + typed_name
+```
+create button "Click Me" in window "My App"
+
+# Colored buttons
+create button "Save"   in window "My App" with color green
+create button "Delete" in window "My App" with color red
+create button "Info"   in window "My App" with color blue
+
+# Available colors: green, blue, red, gray, purple, orange, cyan,
+#                   dark, yellow, teal, pink, white, ghost
+
+# With position
+create button "OK" in window "My App" with x 50 y 100
+
+# With grid layout
+create button "A" in window "My App" with row 0 column 0
+create button "B" in window "My App" with row 0 column 1
+
+# With tooltip
+create button "Help" in window "My App" with tooltip "Click for help"
+
+# With size
+create button "Big" in window "My App" with size 16
+
+# Handle click
+when "Click Me" is clicked
+    show "Button was pressed!"
+    set label_text to "Clicked!"
+    update label "status" to label_text
 end
 
-when button "Cancel" is clicked
-    alert "Cancelled!"
+# Enable/disable
+enable button "Submit"
+disable button "Submit"
+```
+
+### Labels
+
+```
+create label "Welcome!" in window "My App"
+
+# Styled
+create label "Title" in window "My App" with size 24 bold true color "#58a6ff"
+create label "Dimmed" in window "My App" with color "#8b949e" italic true
+
+# Named label (for later updates)
+create label "Loading..." in window "My App" as "status_lbl"
+update label "status_lbl" to "Ready"
+set label "status_lbl" color "#3fb950"
+```
+
+### Text Entries
+
+```
+create entry "Username" in window "My App"
+create entry "Password" in window "My App" with password true
+
+# With placeholder
+create entry "Email" in window "My App" with placeholder "you@example.com"
+
+# Read value
+set name to get entry "Username"
+
+# Set value
+set entry "Username" to "Alice"
+
+# Clear
+clear entry "Username"
+
+# On submit (bind enter key via button)
+when "Login" is clicked
+    set user to get entry "Username"
+    set pass to get entry "Password"
+    show "Logging in as: " + user
 end
+```
 
-# Progress bar
-create progress loading in window "My App"
+### Textareas
 
-# Dialogs
+```
+create textarea "Notes" in window "My App"
+create textarea "Log"   in window "My App" with rows 15
+
+# Get / set
+set text to get textarea "Notes"
+set textarea "Notes" to "Hello World"
+
+# Append (useful for log output)
+append "Line added\n" to textarea "Log"
+```
+
+### Checkboxes
+
+```
+create checkbox "Remember me" in window "My App"
+create checkbox "agree" in window "My App" with label "I agree to terms"
+
+# Read value (true/false)
+set checked to get checkbox "Remember me"
+set checkbox "agree" to true
+```
+
+### Dropdowns
+
+```
+create dropdown "Language" in window "My App" with options "English" "Spanish" "French"
+
+# Read selected value
+set lang to get dropdown "Language"
+
+# Set value
+set dropdown "Language" to "Spanish"
+```
+
+### Progress Bars
+
+```
+create progress "Download" in window "My App"
+
+# Set value (0-100)
+set progress "Download" to 0
+
+repeat 100 times
+    increase prog_val by 1
+    set progress "Download" to prog_val
+    sleep 20 milliseconds
+end
+```
+
+### Tables
+
+```
+create table "Results" in window "My App" with columns "Name" "Score" "Grade"
+
+# Add rows
+table add row to "Results" with values "Alice" 95 "A"
+table add row to "Results" with values "Bob"   82 "B"
+table add row to "Results" with values "Carol" 71 "C"
+
+# Clear all rows
+table clear "Results"
+
+# Get selected rows
+set selected to table get selected "Results"
+```
+
+### Canvas Drawing
+
+```
+create canvas "Drawing" in window "My App" width 600 height 400
+
+# Draw shapes
+canvas draw rect    on "Drawing" from 10 10 to 200 100 fill "#58a6ff"
+canvas draw oval    on "Drawing" from 50 50 to 150 150 fill "#3fb950"
+canvas draw line    on "Drawing" from 0 0 to 600 400 color "#f85149" width 3
+canvas draw text    on "Drawing" at 300 200 text "Hello Canvas" size 18
+
+# Clear
+canvas clear "Drawing"
+```
+
+### Tabs
+
+```
+create tab panel "Tabs" in window "My App"
+add tab "Overview" to panel "Tabs"
+add tab "Settings" to panel "Tabs"
+add tab "Help"     to panel "Tabs"
+```
+
+### Dialogs
+
+```
+# Alert
 alert "File saved successfully!"
-confirm "Are you sure?" store in answer
-if answer then
-    show "User confirmed"
+
+# Confirm (returns true/false)
+set ok to confirm "Are you sure you want to delete this?"
+if ok then
+    show "Deleting..."
 end
 
-# Update a label dynamically
-create label "Score: 0" in window "My App"
-# ... later ...
-update label "Score: 0" with "Score: 100"
+# Input dialog
+set name to ask "Enter your name:"
+
+# File picker
+set path to ask file open
+set path to ask file save
+
+# Color picker
+set col to ask color
+show "Chosen color: " + col
 ```
 
-#### Button Color Options
+### Toast Notifications
 
-| Color name | Appearance |
-|---|---|
-| `default` or `green` | GitHub green |
-| `blue` | Bright blue |
-| `red` | Alert red |
-| `gray` / `grey` | Muted grey |
-| `purple` | Rich purple |
-| `orange` | Warm orange |
-| `cyan` | Teal/cyan |
-| `dark` | Dark card style |
-| `yellow` | Amber yellow |
+```
+# Quick non-blocking notification
+toast "File saved!"
+toast "Error occurred" with color red duration 5000
+toast "Copied to clipboard" with duration 2000
+```
+
+### Status Bar
+
+```
+# Every window has a built-in status bar at the bottom
+set statusbar of "My App" to "Ready"
+set statusbar of "My App" to "Loading data..."
+set statusbar of "My App" to "Done — 42 records loaded"
+```
+
+### Themes
+
+```
+set theme to "dark"       # default — GitHub dark
+set theme to "midnight"   # deeper black
+set theme to "light"      # light mode
+```
+
+### Complete GUI Example
+
+```
+create window "Todo App" width 500 height 600
+
+create label "My Todo List" in window "Todo App" with size 20 bold true color "#58a6ff"
+create entry "Task" in window "Todo App" with placeholder "Enter a task..."
+create button "Add Task" in window "Todo App" with color green
+create table "Todos" in window "Todo App" with columns "Task" "Done"
+
+set task_count to 0
+
+when "Add Task" is clicked
+    set task to get entry "Task"
+    if task is not equal to "" then
+        table add row to "Todos" with values task "No"
+        increase task_count by 1
+        clear entry "Task"
+        set statusbar of "Todo App" to task_count + " tasks"
+        toast "Task added!"
+    end
+end
+```
 
 ---
 
-### System & OS
+## Networking
+
+Neglish v4.1 includes a full HTTP networking layer. No external packages needed.
+
+### HTTP GET
 
 ```
-show platform of    # → "Windows" / "Linux" / "Darwin"
-show cwd      of    # → current working directory
-show username of    # → current user
-show hostname of    # → machine name
-show pid      of    # → process ID
+# Simple GET — stores response body as string
+fetch "https://api.example.com/data" into result
+show result
 
-# Time and date
-show now      of    # → "14:32:05"
-show today    of    # → "2026-04-21"
-show weekday  of    # → "Tuesday"
-show year     of    # → 2026
-show month    of    # → 4
-show day      of    # → 21
-show hour     of    # → 14
-show minute   of    # → 32
-show timestamp of   # → Unix timestamp (integer)
+# With full response info (status, headers, body)
+fetch "https://api.example.com/users" into response with full_response true
+show response.status
+show response.body
+
+# As a builtin function
+set resp to http_get "https://httpbin.org/get"
+show resp.status     # 200
+show resp.ok         # true
+show resp.body
+```
+
+### HTTP POST / PUT / DELETE
+
+```
+# POST with form data
+set resp to http_post "https://httpbin.org/post" with data dict
+    set data.name to "Alice"
+    set data.age  to 30
+end
+
+show resp.status
+show resp.body
+
+# POST with JSON body
+set payload to dict
+set payload.username to "alice"
+set payload.password to "secret"
+
+set resp to http_post "https://api.example.com/login" with json payload
+if resp.ok then
+    show "Logged in!"
+else
+    show "Login failed: " + resp.status
+end
+
+# Custom headers
+set resp to http_get "https://api.example.com/me" with headers dict
+    set headers.Authorization to "Bearer my_token_here"
+    set headers.Accept to "application/json"
+end
+```
+
+### Fetch JSON APIs
+
+```
+# Fetch and auto-parse JSON in one step
+set data to fetch json from "https://api.github.com/users/torvalds"
+show data.name
+show data.public_repos
+show data.bio
+
+# Handle errors
+if dict_has data "error" then
+    show "API error: " + data.error
+end
+
+# Fetch a list
+set posts to fetch json from "https://jsonplaceholder.typicode.com/posts"
+show length of posts    # 100
+
+for each post in posts
+    show post.title
+end
+```
+
+### File Download
+
+```
+# Download a file
+download "https://example.com/file.pdf" to "local_copy.pdf"
+show "Download complete"
+
+# Check success
+set ok to download "https://example.com/data.csv" to "data.csv"
+if ok then
+    show "Downloaded successfully"
+else
+    show "Download failed"
+end
+```
+
+### URL Utilities
+
+```
+# Encode / decode URL components
+set encoded to url_encode "hello world & more"   # "hello%20world%20%26%20more"
+set decoded to url_decode "hello%20world"         # "hello world"
+
+# Base64
+set b64 to base64_encode "Hello, World!"
+set original to base64_decode b64
+
+# Parse a URL into parts
+set parts to parse_url "https://example.com/path?q=hello#section"
+show parts.scheme   # "https"
+show parts.netloc   # "example.com"
+show parts.path     # "/path"
+show parts.query    # "q=hello"
+show parts.fragment # "section"
+```
+
+### Full Networking Example
+
+```
+# Fetch weather data from a public API
+set city to ask "Enter city name:"
+set url  to "https://wttr.in/" + url_encode city + "?format=j1"
+
+set weather to fetch json from url
+
+if dict_has weather "error" then
+    show "Could not fetch weather: " + weather.error
+else
+    set current to weather.current_condition at 0
+    show "Weather in " + city + ":"
+    show "  Temperature: " + current.temp_C + "°C"
+    show "  Feels like:  " + current.FeelsLikeC + "°C"
+    show "  Description: " + current.weatherDesc at 0 at "value"
+end
+```
+
+---
+
+## System & OS
+
+```
+show platform         # "linux", "windows", "darwin"
+show username         # current OS user
+show hostname         # machine hostname
+show pid              # process ID
+show cwd              # current working directory
+show sep              # path separator ("/" or "\")
+
+set val to env_get "HOME"    # read environment variable
+set files to list_dir "."    # list files in directory
 
 # Run a shell command
-run "ls -la" store in output
+set output to run_cmd "ls -la"
 show output
 
-# Environment variable
-set home to env_get of "HOME"
-
-# Exit the program
-exit
+exit     # quit the program
+clear    # clear terminal
 ```
 
 ---
 
-### Colored Terminal Output
+## Colored Terminal Output
 
 ```
-colored red     "Error: something went wrong"
-colored green   "Success: operation complete"
-colored yellow  "Warning: low disk space"
-colored blue    "Info: connecting..."
-colored cyan    "Debug: value = 42"
-colored magenta "Trace: entering function"
-colored white   "Normal white text"
+show colored "red"     "Error message"
+show colored "green"   "Success message"
+show colored "yellow"  "Warning message"
+show colored "blue"    "Info message"
+show colored "cyan"    "Debug message"
+show colored "magenta" "Special message"
+show colored "white"   "Normal message"
+show colored "bold"    "Bold text"
+show colored "dim"     "Dimmed text"
+show colored "underline" "Underlined"
+show colored "bg_red"  "Red background"
+show colored "bg_green" "Green background"
 ```
 
 ---
 
-### Debugging
+## Debugging
 
 ```
-# Print a variable's value with [DEBUG] prefix
-debug score
+debug x               # print variable name + value + type
+inspect person        # deep-inspect any value (lists, dicts, objects)
+trace "reached here"  # labelled debug print with line info
 
-# Inspect a variable's name, value, and type
-inspect score     # → [INSPECT] score = 100 (number)
-inspect fruits    # → [INSPECT] fruits = ['apple', ...] (list)
-
-# See a snapshot of all variables in scope
-trace
-
-# Assert with a message
-assert score is greater than 0 otherwise "Score must be positive"
-
-# Benchmark a block
-benchmark "Database query simulation"
-    sleep 200 milliseconds
-end
-# → [BENCHMARK] Database query simulation: 200.xx ms
-
-# UUID and hash generation (useful for debugging uniqueness)
-show uuid    of ""
-show hash_of of "my data"
+# Runtime info
+show type x
+show __file__         # current script path
+show __version__      # "4.1"
 ```
 
 ---
 
 ## Built-in Function Reference
 
-All 157 built-in functions. Call them with `fn of value` or `fn of a and b`.
+### Output & Input
+| Function | Description |
+|---|---|
+| `show` / `say` / `print` / `log` | Print to terminal |
+| `ask "prompt"` | Prompt for input |
+| `colored color text` | Colored terminal output |
+| `debug x` | Print var name + value + type |
+| `inspect x` | Deep inspection print |
 
 ### Math
-
-| Function | Syntax | Description |
-|---|---|---|
-| `sqrt` | `sqrt of x` | Square root |
-| `abs` | `abs of x` | Absolute value |
-| `floor` | `floor of x` | Round down |
-| `ceil` | `ceil of x` | Round up |
-| `round` | `round of x` | Round to nearest int |
-| `power` | `power of x and y` | x raised to y |
-| `mod` | `mod of x and y` | Remainder of x ÷ y |
-| `sign` | `sign of x` | -1, 0, or 1 |
-| `clamp` | `clamp of v and lo and hi` | Clamp value to range |
-| `lerp` | `lerp of t and a and b` | Linear interpolation |
-| `max` | `max of a and b` | Larger of two values |
-| `min` | `min of a and b` | Smaller of two values |
-| `gcd` | `gcd of a and b` | Greatest common divisor |
-| `lcm` | `lcm of a and b` | Least common multiple |
-| `sin` | `sin of degrees` | Sine (input in degrees) |
-| `cos` | `cos of degrees` | Cosine |
-| `tan` | `tan of degrees` | Tangent |
-| `log10` | `log10 of x` | Base-10 logarithm |
-| `log2` | `log2 of x` | Base-2 logarithm |
-| `degrees` | `degrees of radians` | Radians → degrees |
-| `radians` | `radians of degrees` | Degrees → radians |
-| `is_prime` | `is_prime of n` | True if n is prime |
-| `is_even` | `is_even of n` | True if n is even |
-| `is_odd` | `is_odd of n` | True if n is odd |
-| `factorial` | `factorial of n` | n! |
-| `fibonacci` | `fibonacci of n` | nth Fibonacci number |
-| `random_between` | `random between 1 and 10` | Random integer in range |
-| `random_float` | `random_float of lo and hi` | Random decimal in range |
-| `percent` | `percent of part and total` | Percentage |
-| `between` | `between of v and lo and hi` | True if lo ≤ v ≤ hi |
+| Function | Description |
+|---|---|
+| `sqrt x` | Square root |
+| `abs x` | Absolute value |
+| `floor x` / `ceil x` / `round x` | Rounding |
+| `power a to b` | `a^b` |
+| `mod a by b` | Modulo |
+| `log10 x` / `log2 x` | Logarithms |
+| `sin x` / `cos x` / `tan x` | Trig (radians) |
+| `asin x` / `acos x` / `atan x` | Inverse trig |
+| `degrees x` / `radians x` | Angle conversion |
+| `pi` | 3.14159... |
+| `random from a to b` | Random integer in range |
+| `max a and b` / `min a and b` | Maximum/minimum |
+| `clamp v between lo and hi` | Clamp value |
+| `lerp t from a to b` | Linear interpolation |
+| `gcd a and b` / `lcm a and b` | GCD/LCM |
+| `is_prime n` | Primality test |
+| `is_even n` / `is_odd n` | Parity check |
+| `factorial n` / `fibonacci n` | Sequences |
+| `sign x` | -1, 0, or 1 |
 
 ### Strings
-
-| Function | Syntax | Description |
-|---|---|---|
-| `uppercase` | `uppercase of s` | ALL CAPS |
-| `lowercase` | `lowercase of s` | all lowercase |
-| `titlecase` | `titlecase of s` | Title Case |
-| `camelcase` | `camelcase of s` | camelCase |
-| `snakecase` | `snakecase of s` | snake_case |
-| `trim` | `trim of s` | Remove leading/trailing spaces |
-| `trim_left` | `trim_left of s` | Remove leading spaces |
-| `trim_right` | `trim_right of s` | Remove trailing spaces |
-| `reverse` | `reverse of s` | "hello" → "olleh" |
-| `length` | `length of s` | Character count |
-| `contains` | `s contains sub` | True if s has sub |
-| `starts_with` | `s starts with prefix` | True if starts with |
-| `ends_with` | `s ends with suffix` | True if ends with |
-| `substring` | `substring of s from a to b` | Extract portion |
-| `char_at` | `char_at of s and i` | Character at position i |
-| `char_code` | `char_code of s` | ASCII code of first char |
-| `from_code` | `from_code of n` | ASCII code → character |
-| `split` | `split s by sep` | Split string to list |
-| `split_lines` | `split_lines of s` | Split by newlines |
-| `join` | `join list with sep` | Join list to string |
-| `replace` | `replace in s find x with y` | Find and replace |
-| `replace_regex` | `replace_regex of s and pattern and rep` | Regex replace |
-| `matches` | `matches of s and pattern` | Full regex match |
-| `find_all` | `find_all of s and pattern` | Find all regex matches |
-| `pad_left` | `pad_left of s and n and ch` | Pad string on left |
-| `pad_right` | `pad_right of s and n and ch` | Pad string on right |
-| `repeat_str` | `repeat_str of s and n` | Repeat string n times |
-| `count_of` | `count_of of s and sub` | Count occurrences |
-| `index_of` | `index_of of val and lst` | First occurrence index |
-| `number_format` | `number_format of n and dp` | Format number with commas |
-| `pluralize` | `pluralize of word and n` | "cat" + 3 → "cats" |
-| `format_str` | `format_str of template and args...` | `{}` placeholder format |
-| `uuid` | `uuid of ""` | Generate UUID v4 |
-| `hash_of` | `hash_of of s` | SHA-256 hash string |
+| Function | Description |
+|---|---|
+| `uppercase s` / `lowercase s` / `titlecase s` | Case conversion |
+| `trim s` | Strip whitespace |
+| `length of s` | String length |
+| `split s by delim` | Split string |
+| `join list with delim` | Join list |
+| `replace old with new in s` | Replace substring |
+| `substring s from a to b` | Slice string |
+| `starts with` / `ends with` / `contains` | Checks |
+| `char_at s at i` | Character at index |
+| `char_code c` / `from_code n` | ASCII conversions |
+| `pad_left s with c to n` | Left-pad |
+| `pad_right s with c to n` | Right-pad |
+| `camelcase s` / `snakecase s` | Case conversion |
+| `number_format n` | Format with commas |
+| `count_of sub in s` | Count occurrences |
+| `regex pattern` / `matches` | Regex testing |
+| `find_all pattern in s` | Regex find all |
+| `replace_regex pattern with r in s` | Regex replace |
 
 ### Lists
-
-| Function | Syntax | Description |
-|---|---|---|
-| `length` | `length of lst` | Item count |
-| `sum` | `sum of lst` | Sum of all numbers |
-| `average` | `average of lst` | Arithmetic mean |
-| `median` | `median of lst` | Middle value |
-| `stdev` | `stdev of lst` | Standard deviation |
-| `variance` | `variance of lst` | Variance |
-| `max_of` | `max_of of lst` | Largest item |
-| `min_of` | `min_of of lst` | Smallest item |
-| `first` | `first of lst` | First item |
-| `last` | `last of lst` | Last item |
-| `sort` | `sort of lst` | Sorted copy (ascending) |
-| `sort_desc` | `sort_desc of lst` | Sorted copy (descending) |
-| `shuffle` | `shuffle of lst` | Randomly shuffle |
-| `reverse` | `reverse of lst` | Reversed copy |
-| `unique` | `unique of lst` | Remove duplicates |
-| `flatten` | `flatten of lst` | Flatten one level |
-| `flatten_deep` | `flatten_deep of lst` | Flatten all levels |
-| `compact` | `compact of lst` | Remove falsy values |
-| `take` | `take of lst and n` | First n items |
-| `drop` | `drop of lst and n` | Skip first n items |
-| `chunk` | `chunk of lst and n` | Split into sub-lists of size n |
-| `zip_pairs` | `zip_pairs of a and b` | Zip two lists together |
-| `enumerate_list` | `enumerate_list of lst` | Add 1-based index to each |
-| `range_list` | `range_list of start and end` | List from start to end |
-| `intersection` | `intersection of a and b` | Items in both lists |
-| `difference` | `difference of a and b` | Items in a but not b |
-| `union` | `union of a and b` | All items, no duplicates |
-| `contains_all` | `contains_all of lst and items` | All items present? |
-| `contains_any` | `contains_any of lst and items` | Any item present? |
-| `is_empty` | `lst is empty` | True if list has 0 items |
-| `pluck` | `pluck of lst and key` | Extract a key from list of dicts |
+| Function | Description |
+|---|---|
+| `length of / count of` | List length |
+| `first of / last of` | First/last element |
+| `list at i` | Element at index |
+| `add x to list` | Append |
+| `remove x from list` | Remove by value |
+| `insert x at i in list` | Insert at index |
+| `sort list` / `sort list descending` | Sort |
+| `reverse of list` | Reverse |
+| `unique of list` | Deduplicate |
+| `flatten of list` | Flatten one level |
+| `contains` | Membership test |
+| `index of x in list` | Find index |
+| `slice list from a to b` | Sublist |
+| `sum of / average of / median of` | Stats |
+| `max of / min of` | Extremes |
+| `stdev of / variance of` | Statistics |
+| `union / intersection / difference` | Set ops |
+| `zip_pairs` | Zip two lists |
+| `enumerate_list` | Add indices |
+| `range_list from a to b` | Create range |
+| `chunk list by n` | Split into chunks |
+| `sample list n` | Random sample |
+| `choice list` | Random element |
+| `pluck key from list` | Extract field from dicts |
+| `group_by list by key` | Group by field |
 
 ### Dictionaries
+| Function | Description |
+|---|---|
+| `keys of / values of` | Get keys/values |
+| `dict_has d key` | Key existence |
+| `dict_size of d` | Number of keys |
+| `dict_merge of a and b` | Merge dicts |
+| `dict_to_list of d` | List of [k,v] pairs |
 
-| Function | Syntax | Description |
-|---|---|---|
-| `dict_keys` | `keys of dict` | List of all keys |
-| `dict_values` | `values of dict` | List of all values |
-| `dict_has` | `dict_has of dict and key` | True if key exists |
-| `dict_size` | `dict_size of dict` | Number of key-value pairs |
-| `dict_merge` | `dict_merge of a and b` | Combine two dicts |
-| `dict_to_list` | `dict_to_list of dict` | List of [key, value] pairs |
+### Files
+| Function | Description |
+|---|---|
+| `read file / read_file` | Read text file |
+| `write x to / write_file` | Write text file |
+| `append x to / append_file` | Append to file |
+| `file_exists / is_file / is_dir` | File checks |
+| `file_size / file_ext / file_name / file_dir` | File info |
+| `list_dir path` | Directory listing |
+| `path_join a b` | Join paths |
+| `delete file` | Delete file |
 
-### Time & Date
+### JSON
+| Function | Description |
+|---|---|
+| `json_parse s` | Parse JSON string |
+| `json_stringify x` | Serialize to JSON |
+| `json_pretty x` | Pretty-print JSON |
+| `save x to file` | Save as JSON file |
+| `load from file` | Load JSON file |
 
-| Function | Syntax | Result |
-|---|---|---|
-| `now` | `now of` | `"14:32:05"` |
-| `today` | `today of` | `"2026-04-21"` |
-| `timestamp` | `timestamp of` | Unix timestamp (int) |
-| `time_ms` | `time_ms of` | Milliseconds since epoch |
-| `year` | `year of` | `2026` |
-| `month` | `month of` | `4` |
-| `day` | `day of` | `21` |
-| `hour` | `hour of` | `14` |
-| `minute` | `minute of` | `32` |
-| `second` | `second of` | `5` |
-| `weekday` | `weekday of` | `"Tuesday"` |
+### Time
+| Function | Description |
+|---|---|
+| `now` | Current datetime string |
+| `today` | Today's date string |
+| `timestamp` | Unix timestamp (float) |
+| `time_ms` | Milliseconds since epoch |
+| `year / month / day / hour / minute / second` | Date parts |
+| `weekday` | Day name |
+| `sleep N seconds` | Pause execution |
+| `wait N milliseconds` | Short pause |
 
-### File System
+### Networking (v4.1)
+| Function | Description |
+|---|---|
+| `http_get url` | HTTP GET → `{body, status, ok}` |
+| `http_post url with data/json` | HTTP POST → `{body, status, ok}` |
+| `fetch_json url` | Fetch + parse JSON → dict/list |
+| `download url to path` | Download file, returns bool |
+| `url_encode s` | Percent-encode URL component |
+| `url_decode s` | Decode percent-encoded string |
+| `base64_encode s` | Base64 encode |
+| `base64_decode s` | Base64 decode |
+| `parse_url url` | Parse URL → dict of parts |
 
-| Function | Syntax | Description |
-|---|---|---|
-| `file_exists` | `file_exists of path` | True if file/dir exists |
-| `is_file` | `is_file of path` | True if it's a file |
-| `is_dir` | `is_dir of path` | True if it's a directory |
-| `file_size` | `file_size of path` | Size in bytes |
-| `file_ext` | `file_ext of path` | Extension (e.g. `.neg`) |
-| `file_name` | `file_name of path` | Filename with extension |
-| `file_dir` | `file_dir of path` | Parent directory |
-| `list_dir` | `list_dir of path` | List files in directory |
-| `read_file` | `read_file of path` | Read entire file as string |
-| `write_file` | `write_file path content` | Overwrite file |
-| `append_file` | `append_file path content` | Append to file |
+### System
+| Function | Description |
+|---|---|
+| `platform` | OS name |
+| `username` | Current user |
+| `hostname` | Machine name |
+| `pid` | Process ID |
+| `cwd` | Working directory |
+| `env_get key` | Environment variable |
+| `run_cmd cmd` | Shell command output |
+| `uuid` | Generate UUID v4 |
+| `hash_of s` | SHA-256 hash |
+| `exit` | Exit program |
+| `clear` | Clear terminal |
 
-### Type & Conversion
-
-| Function | Syntax | Description |
-|---|---|---|
-| `type_of` | `type of x` | Returns type name as string |
-| `is_number` | `is_number of x` | True if numeric |
-| `is_string` | `is_string of x` | True if string |
-| `is_list` | `is_list of x` | True if list |
-| `is_dict` | `is_dict of x` | True if dict |
-| `is_null` | `is_null of x` | True if null |
-| `is_bool` | `is_bool of x` | True if boolean |
-| `to_number` | `number of x` | Convert to number |
-| `to_string` | `string of x` | Convert to string |
-| `to_bool` | `to_bool of x` | Convert to boolean |
-| `to_list` | `to_list of x` | Convert to list |
-
-### Random & Choice
-
-| Function | Syntax | Description |
-|---|---|---|
-| `random_between` | `random between 1 and 10` | Random int in range |
-| `random_float` | `random_float of lo and hi` | Random float in range |
-| `choice` | `choice of lst` | Pick random item from list |
-| `sample` | `sample of lst and n` | Pick n random items |
-| `weighted_choice` | `weighted_choice of items and weights` | Pick with probability |
-
-### Misc
-
-| Function | Syntax | Description |
-|---|---|---|
-| `uuid` | `uuid of ""` | Generate UUID v4 string |
-| `hash_of` | `hash_of of s` | SHA-256 hash |
-| `json_parse` | `json_parse of s` | Parse JSON string |
-| `json_stringify` | `json_stringify of v` | Compact JSON string |
-| `json_pretty` | `json_pretty of v` | Indented JSON string |
-| `run_cmd` | `run "cmd" store in out` | Run shell command |
-| `env_get` | `env_get of key` | Read environment variable |
-| `sleep_ms` | `sleep_ms of ms` | Sleep N milliseconds |
-| `platform` | `platform of` | OS name |
-| `username` | `username of` | Current user |
-| `hostname` | `hostname of` | Machine name |
-| `pid` | `pid of` | Process ID |
-| `cwd` | `cwd of` | Working directory |
+### Type Checks
+| Function | Description |
+|---|---|
+| `type x` | Type name string |
+| `is_string / is_number / is_list / is_dict / is_null / is_bool` | Type tests |
+| `number s` / `string n` | Type conversion |
+| `to_bool x` / `to_list x` | Type coercion |
 
 ---
 
 ## Standard Library Modules
 
-### stdlib/math.neg
+Located in `stdlib/`. Import with `import math as m`.
 
-```
-import math as m
+### `math.neg`
+Extended math: `quadratic`, `is_perfect_square`, `prime_factors`, `digit_sum`, `digit_count`, `reverse_number`, `is_palindrome_num`, `celsius_to_fahrenheit`, `fahrenheit_to_celsius`
 
-call m.square with 7           # → 49
-call m.cube with 4             # → 64
-call m.hypotenuse with 3 and 4 # → 5.0
-call m.percent with 45 and 200 # → 22.5
-call m.collatz with 27         # → 111 (steps to reach 1)
-call m.digit_sum with 12345    # → 15
-call m.map_range with 0.5 and 0 and 1 and 0 and 100  # → 50.0
-```
+### `strings.neg`
+String utilities: `count_words`, `is_palindrome`, `longest_word`, `word_frequency`, `caesar_cipher`, `sentence_to_words`, `words_to_sentence`
 
-### stdlib/strings.neg
+### `collections.neg`
+Data structures: `new_stack`, `stack_push`, `stack_pop`, `stack_peek`, `new_queue`, `enqueue`, `dequeue`, `new_set`, `set_add`, `set_has`
 
-```
-import strings as str_lib
-
-call str_lib.word_count      with "Hello World"       # → 2
-call str_lib.is_palindrome   with "racecar"            # → True
-call str_lib.count_vowels    with "programming"        # → 3
-call str_lib.count_consonants with "hello"             # → 3
-call str_lib.slug_from       with "Hello World Page"   # → "hello world page"
-call str_lib.truncate        with "Long text..." and 8 and "..."
-call str_lib.mask            with "password" and "*"   # → "********"
-call str_lib.repeat_text     with "ha" and 3           # → "hahaha"
-```
-
-### stdlib/collections.neg
-
-```
-import collections as col
-
-set nums to call col.range_list with 1 and 10       # → [1,2,3,...,10]
-set rot  to call col.rotate_left with list and 2    # → rotated left by 2
-set freq to call col.frequency_map with data        # → {value: count, ...}
-set cnt  to call col.count_occurrences with "a" and list
-set zipped to call col.zip_lists with list_a and list_b
-```
-
-### stdlib/io.neg
-
-```
-import io as files
-
-set data to call files.read_text  with "file.txt"
-call files.write_text with "output.txt" and "content"
-set lines to call files.read_lines with "file.txt"    # → list of lines
-set cfg   to call files.read_json  with "config.json" # → dict
-call files.write_json with "config.json" and config
-set rows  to call files.read_csv   with "data.csv"    # → list of lists
-call files.print_table with headers and rows
-```
+### `io.neg`
+I/O helpers: `read_lines`, `write_lines`, `read_json_file`, `write_json_file`, `file_line_count`, `grep`
 
 ---
 
 ## Full Example Programs
 
-### Todo List App (CLI)
+### Calculator (GUI)
 
 ```
-create list todos with
-set running to true
+create window "Calculator" width 320 height 480
 
-define function show_todos
-    if todos is empty then
-        show "  (no todos)"
-        return
-    end
-    set i to 1
-    for each todo in todos
-        show i + ". " + todo
-        increase i by 1
-    end
-end
+create label "0" in window "Calculator" with size 28 bold true color "#58a6ff" as "display"
 
-while running is equal to true
-    show ""
-    call show_todos
-    show ""
-    ask "Command (add/remove/quit):" and store in cmd
+set expression to ""
 
-    if cmd is equal to "add" then
-        ask "Task:" and store in task
-        add task to todos
-        colored green "Added: " + task
-
-    elseif cmd is equal to "remove" then
-        ask "Number to remove:" and store in num
-        set idx to number of num
-        if idx is greater than 0 and idx is less than length of todos + 1 then
-            set item_to_remove to item idx of todos
-            remove item_to_remove from todos
-            colored red "Removed: " + item_to_remove
+define button_press with val
+    if val is equal to "=" then
+        try
+            set result to eval expression
+            update label "display" to result
+            set expression to string result
+        catch err
+            update label "display" to "Error"
+            set expression to ""
         end
-
-    elseif cmd is equal to "quit" then
-        set running to false
-    end
-end
-
-show "Goodbye!"
-```
-
-### Number Guessing Game
-
-```
-set secret to random between 1 and 100
-set attempts to 0
-set won to false
-
-colored cyan "Guess the number between 1 and 100!"
-show "You have 7 attempts."
-
-while attempts is less than 7 and won is equal to false
-    ask "Your guess:" and store in guess
-    increase attempts by 1
-
-    if guess is equal to secret then
-        set won to true
-        colored green "CORRECT! You got it in " + attempts + " attempts!"
-    elseif guess is less than secret then
-        colored yellow "Too low!"
+    elseif val is equal to "C" then
+        set expression to ""
+        update label "display" to "0"
     else
-        colored yellow "Too high!"
+        set expression to expression + val
+        update label "display" to expression
     end
 end
 
-if won is equal to false then
-    colored red "Game over! The number was " + secret
+set buttons to list "7" "8" "9" "/" "4" "5" "6" "*" "1" "2" "3" "-" "0" "." "=" "+"
+
+set r to 1
+set c to 0
+for each btn in buttons
+    create button btn in window "Calculator" with row r column c size 14
+    when btn is clicked
+        call button_press with btn
+    end
+    increase c by 1
+    if c is equal to 4 then
+        set c to 0
+        increase r by 1
+    end
+end
+
+create button "C" in window "Calculator" with row 0 column 0 color red
+when "C" is clicked
+    call button_press with "C"
 end
 ```
 
-### Grade Calculator with Tests
+### Weather App (Networking + GUI)
 
 ```
-import math as m
+create window "Weather" width 500 height 400
 
-define function letter_grade with score
-    if score is greater than 89 then return "A" end
-    if score is greater than 79 then return "B" end
-    if score is greater than 69 then return "C" end
-    if score is greater than 59 then return "D" end
-    return "F"
-end
+create label "🌤  Live Weather" in window "Weather" with size 20 bold true
+create entry "City" in window "Weather" with placeholder "Enter city name..."
+create button "Get Weather" in window "Weather" with color blue
+create label "" in window "Weather" as "result"
 
-describe "Grade Tests"
-    test "A grade"
-        expect call letter_grade with 95 should be "A"
-        expect call letter_grade with 90 should be "A"
+when "Get Weather" is clicked
+    set city to get entry "City"
+    if city is equal to "" then
+        alert "Please enter a city name"
+    else
+        update label "result" to "Fetching..."
+        set statusbar of "Weather" to "Requesting data..."
+        set url to "https://wttr.in/" + url_encode city + "?format=3"
+        set resp to http_get url
+        if resp.ok then
+            update label "result" to resp.body
+            set statusbar of "Weather" to "Updated"
+            toast "Weather loaded!" with color "#3fb950"
+        else
+            update label "result" to "Failed to fetch weather"
+            set statusbar of "Weather" to "Error " + resp.status
+        end
     end
-    test "F grade"
-        expect call letter_grade with 50 should be "F"
-        expect call letter_grade with 0  should be "F"
-    end
 end
+```
 
-create list grades with 88, 92, 75, 68, 95, 82, 91
-show "Average: " + average of grades
-show "Highest: " + max_of of grades
-show "Grade:   " + call letter_grade with average of grades
+### REST API Client (Console)
+
+```
+# Fetch and display GitHub user info
+set username to ask "GitHub username:"
+set resp to http_get "https://api.github.com/users/" + username
+
+if resp.ok then
+    set user to json_parse resp.body
+    show colored "cyan" "=== GitHub Profile ==="
+    show colored "bold" user.name
+    show "  Username:  @" + user.login
+    show "  Repos:     " + user.public_repos
+    show "  Followers: " + user.followers
+    show "  Bio:       " + user.bio
+    show "  Location:  " + user.location
+else
+    show colored "red" "User not found (status " + resp.status + ")"
+end
 ```
 
 ---
 
 ## CLI Reference
 
+Once installed to PATH (`install.bat` or `neglish --install`), run from **any directory**:
+
+```
+neglish <file.neg>              Run a program
+neglish <file.neg> --nogui      Run without GUI
+neglish <file.neg> --check      Check syntax only
+neglish <file.neg> --tokens     Dump token stream (debug)
+neglish <file.neg> --ast        Dump AST as JSON (debug)
+neglish <file.neg> --profile    Show parse/exec timing
+neglish <file.neg> --strict     Enable strict parser mode
+neglish --repl                  Interactive REPL
+neglish --version               Show version info
+neglish --install               Install to user PATH (Windows)
+neglish --uninstall             Remove from user PATH (Windows)
+```
+
+When running from source:
 ```bash
-python main.py file.neg              # Run a program
-python main.py file.neg --nogui      # Run without GUI (console only)
-python main.py file.neg arg1 arg2    # Pass arguments (available as ARGS)
-python main.py --repl                # Interactive REPL
-python main.py --check file.neg      # Syntax check only
-python main.py --version             # Print version
+python main.py <file.neg> [flags]
 ```
 
-### File Extension
-
-Neglish programs use the `.neg` extension:
+### REPL Commands
 
 ```
-hello.neg
-calculator.neg
-my_app.neg
+>>>  exit / quit        Leave the REPL
+>>>  help               Show help
+>>>  vars               List defined variables
+>>>  clear              Clear screen
+>>>  load <file.neg>    Load and run a file
 ```
-
-### Comments
-
-```
-# Single line comment
-// Also single line
-/* Multi-line
-   comment */
-```
-
 ---
 
 ## VS Code Extension
 
-The included VS Code extension adds:
+Located in `vscode-extension/`. Provides:
+- Syntax highlighting for `.neg` files
+- Three themes: Neglish Dark, Neglish Midnight, Neglish Light
+- Code snippets for all major constructs
+- Bracket/quote matching configuration
+- Hover docs, completions, diagnostics, and symbol outline
+- Settings for strict mode, IntelliSense toggle, and completion limit
 
-- **Full syntax highlighting** — keywords, strings, numbers, builtins all colored distinctly
-- **Neglish Dark theme** — custom dark theme designed for `.neg` files
-- **35+ code snippets** — type `def`, `if`, `fore`, `try`, `describe`, etc. then press Tab
-- **Bracket auto-close** — `[`, `(`, `{`, `"`, `'` close automatically
-- **Code folding** — fold `if`/`while`/`define`/`repeat` blocks
-- **Run button** — status bar `▶ Run Neglish` button runs the current file
+**Package and install `.vsix`:**
+1. `cd vscode-extension`
+2. `npm install -g @vscode/vsce`
+3. `vsce package`
+4. `code --install-extension neglish-language-4.2.0.vsix`
 
-### Installation
+If you add `negextension.ico` to `vscode-extension/`, it is used as the extension icon.
 
-1. Copy the `vscode-extension/` folder to:
-   - **Windows**: `%USERPROFILE%\.vscode\extensions\neglish-language-3.0.0\`
-   - **macOS/Linux**: `~/.vscode/extensions/neglish-language-3.0.0/`
-2. Restart VS Code
-3. Open any `.neg` file — syntax highlighting appears automatically
-4. Apply the theme: `Ctrl+K Ctrl+T` → **Neglish Dark**
+## Build & Install (Windows)
 
+### Build `neglish.exe` (standalone runtime)
+
+```bat
+:: Build the runtime exe (stdlib is bundled inside)
+build_neglish_runtime.bat
+
+:: Build and install to PATH in one step
+build_neglish_runtime.bat --install
+```
+
+### Install to PATH manually
+
+```bat
+:: After building, run install.bat to add neglish to your user PATH
+install.bat
+
+:: Now open a new terminal — neglish works from anywhere:
+neglish hello.neg
+neglish --repl
+```
+
+### Uninstall
+
+```bat
+uninstall.bat
+```
+
+### Build a standalone `.neg` program as its own `.exe`
+
+Use this to distribute a single `.neg` program as a self-contained executable:
+
+```bat
+build_neg_exe.bat your_program.neg
+:: Output: dist\your_program.exe
+```
+
+Optional custom name:
+```bat
+build_neg_exe.bat your_program.neg MyApp
+:: Output: dist\MyApp.exe
+```
+
+### Register `.neg` file type (Windows)
+
+Double-click any `.neg` file in Explorer to run it:
+
+```bat
+register_neg_filetype.bat
+```
 ---
 
 ## Language Design Philosophy
 
-Neglish is built around three principles:
+Neglish is built around one idea: **code should read like instructions you'd write to a colleague.**
 
-**1. Readability over terseness**
+- **No semicolons** — lines end at newlines, blocks end at `end`
+- **No brackets for conditions** — `if x > 5 then` not `if (x > 5) {`
+- **Natural keywords** — `say`, `show`, `ask`, `create`, `repeat`
+- **Synonym-friendly** — `show`/`say`/`print`/`log` all work the same
+- **Articles optional** — `the`, `a`, `an` are silently consumed
+- **English logic words** — `and`, `or`, `not`, `both`, `either`
+- **Readable comparisons** — `is greater than`, `is equal to`, `is less than`
+- **No Python bleed** — you never need to know Python to write Neglish
 
-Code should be self-documenting. When you read `show "Hello"`, you don't need to know what `print` is. When you read `filter scores where score is greater than 75`, the intent is immediately clear to anyone — programmer or not.
-
-**2. English as structure, not free-form text**
-
-Neglish is NOT natural language AI. It follows strict parsing rules. The syntax is English-shaped but deterministic — every sentence has one interpretation. `set name to "Ahmad"` always means exactly one thing. This makes programs predictable and debuggable.
-
-**3. Independence from its runtime**
-
-Python is the engine, not the language. Neglish programs never import Python, call Python functions, or think about Python. The standard library is written in Neglish itself. A future Neglish compiler could target any language — the `.neg` files stay exactly the same.
-
----
-
-## Limitations & Roadmap
-
-### Current Limitations
-
-- **Performance**: Interpreted through Python — not suitable for CPU-heavy computation
-- **No network I/O in stdlib yet**: `fetch` works for HTTP GET but no full HTTP library
-- **OOP via dicts**: Full class/object syntax is partially implemented; dict-based objects are recommended
-- **Single-file GUI**: Complex GUIs need multiple `create label`, `create button` calls without layout managers like grid/pack control
-- **No `for` loop with variable step in all contexts**: Step loops work at top level and in most blocks
-
-### Planned Features
-
-- `class` / `object` OOP with `self.property` syntax
-- Full network module (`stdlib/http.neg`)
-- Database module (`stdlib/db.neg` using SQLite)
-- Package manager (`neglish install package`)
-- Compiled mode (transpile `.neg` to Python for faster execution)
-- Better error messages with line highlighting
-- VS Code language server (autocomplete, hover docs)
-- Web framework module (`stdlib/web.neg`)
+The goal is a language approachable enough that someone who has never programmed can write useful programs within an hour.
 
 ---
 
-<div align="center">
+## Known Limitations
 
-**Neglish v3.0** · MIT License · Made with 💙
-
-*"Write code the way you think. Then run it."*
-
-</div>
+- **No package manager** — modules must be placed in `stdlib/`, next to the script, or imported by path
+- **Tkinter required for GUI** — comes with Python on most platforms; on some Linux distros: `sudo apt install python3-tk`
+- **No async/await for networking** — HTTP calls are synchronous; use `spawn` for background requests
+- **No WebSocket client** — planned for v4.3
+- **REPL has no arrow-key history** — use `load <file>` for longer programs
+- **No type annotations** — planned for v5.0
+- **`--install` is Windows-only** — on Linux/macOS, add the directory containing `neglish` to your `$PATH` manually
